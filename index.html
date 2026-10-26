@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rakshit Ratan Pathak</title>
+<meta name="description" content="Rakshit Ratan Pathak: compilers and GPU tooling in C++, ML systems with measured results, tested backends. B.Tech CSBS, VIT Vellore.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: persistent left rail of "layers" (overview → section → detail) beside a reading column; stacks to a top bar on phones. */
+:root {
+  --bg: #f1f3f0;          /* cool sage-grey paper */
+  --surface: #ffffff;
+  --ink: #17201d;
+  --muted: #59655f;
+  --line: #d5dbd6;
+  --accent: #0d6b6b;      /* oxidised teal */
+  --accent-soft: #dceeec;
+  --warn: #8a5a10;        /* in-progress status */
+  --warn-soft: #f6ead3;
+  --ok: #2c6b3a;
+  --ok-soft: #e0efe2;
+  --code-bg: #e7ebe7;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --step--1: 0.8125rem; --step-0: 1rem; --step-1: 1.1875rem; --step-2: 1.5rem; --step-3: 2.125rem; --step-4: clamp(2.4rem, 5vw, 3.6rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101614; --surface: #16201d; --ink: #e4ebe7; --muted: #9aa8a1; --line: #2a3632;
+    --accent: #5cc4b8; --accent-soft: #173431; --warn: #e2b062; --warn-soft: #33281a;
+    --ok: #8ccf98; --ok-soft: #1b2e20; --code-bg: #1c2724; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101614; --surface: #16201d; --ink: #e4ebe7; --muted: #9aa8a1; --line: #2a3632;
+  --accent: #5cc4b8; --accent-soft: #173431; --warn: #e2b062; --warn-soft: #33281a;
+  --ok: #8ccf98; --ok-soft: #1b2e20; --code-bg: #1c2724; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--step-0)/1.6 var(--body); -webkit-font-smoothing: antialiased; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+p { margin: 0; }
+code, .mono { font-family: var(--mono); font-size: 0.9em; }
+.label { font: 500 var(--step--1)/1.3 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+
+.shell { display: grid; grid-template-columns: 250px minmax(0, 1fr); min-height: 100vh; }
+.rail { position: sticky; top: 0; height: 100vh; overflow-y: auto; border-right: 1px solid var(--line); padding: 28px 22px; display: flex; flex-direction: column; gap: 28px; }
+.brand { display: grid; gap: 4px; text-decoration: none; color: var(--ink); }
+.brand b { font: 800 1.35rem/1.1 var(--display); }
+.brand span { color: var(--muted); font-size: var(--step--1); }
+.layers { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.layers a { display: grid; grid-template-columns: 2.2em 1fr; align-items: baseline; padding: 7px 10px; border-radius: 6px; color: var(--ink); text-decoration: none; font-weight: 500; }
+.layers a .k { font: 400 var(--step--1) var(--mono); color: var(--muted); }
+.layers a:hover { background: var(--code-bg); }
+.layers a[aria-current="true"] { background: var(--accent-soft); color: var(--accent); }
+.layers a[aria-current="true"] .k { color: var(--accent); }
+.sub { list-style: none; margin: 2px 0 6px 2.2em; padding: 0 0 0 10px; border-left: 1px solid var(--line); display: grid; }
+.sub a { display: block; padding: 4px 8px; font-size: var(--step--1); color: var(--muted); text-decoration: none; border-radius: 4px; }
+.sub a:hover { color: var(--ink); }
+.sub a[aria-current="true"] { color: var(--accent); font-weight: 600; }
+.rail-foot { margin-top: auto; display: grid; gap: 6px; font-size: var(--step--1); color: var(--muted); }
+.rail-foot a { color: var(--muted); }
+
+main { min-width: 0; padding-block: 36px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.col { max-width: 860px; margin: 0 auto; padding-inline: clamp(0px, 3vw, 28px); display: grid; gap: 40px; }
+.path { font: 400 var(--step--1) var(--mono); color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.path a { color: var(--muted); text-decoration: none; }
+.path a:hover { color: var(--accent); }
+.path .sep { opacity: 0.6; }
+
+/* overview */
+.hero { display: grid; gap: 18px; }
+.hero h1 { font-size: var(--step-4); font-weight: 800; }
+.hero .lede { font-size: var(--step-1); max-width: 62ch; color: var(--ink); }
+.facts { display: flex; flex-wrap: wrap; gap: 10px 28px; padding-top: 6px; }
+.facts div { display: grid; }
+.facts b { font: 700 var(--step-2)/1.1 var(--display); font-variant-numeric: tabular-nums; }
+.facts span { font-size: var(--step--1); color: var(--muted); }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 7px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font: 500 var(--step--1)/1.2 var(--body); cursor: pointer; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.btn.primary:hover { filter: brightness(1.08); color: var(--bg); }
+
+.stack { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.band { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 18px; padding: 20px 22px; border-top: 1px solid var(--line); }
+.band:first-child { border-top: 0; }
+.band h3 { font-size: var(--step-1); }
+.band p { color: var(--muted); font-size: var(--step--1); margin-top: 4px; }
+.band .depth { font: 400 var(--step--1) var(--mono); color: var(--accent); margin-bottom: 6px; display: block; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-content: start; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 999px; background: var(--code-bg); color: var(--ink); text-decoration: none; font-size: var(--step--1); font-weight: 500; border: 1px solid transparent; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); flex: none; }
+.dot.prog { background: var(--warn); }
+
+.section-head { display: grid; gap: 8px; }
+.section-head h2 { font-size: var(--step-3); }
+.section-head p { color: var(--muted); max-width: 62ch; }
+
+/* work index */
+.filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.filters button { font: 500 var(--step--1) var(--body); padding: 6px 13px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; }
+.filters button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.rows { display: grid; border-top: 1px solid var(--line); }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 20px; padding: 18px 4px; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--ink); }
+.row:hover h3 { color: var(--accent); }
+.row h3 { font-size: var(--step-1); font-weight: 700; }
+.row p { color: var(--muted); font-size: 0.95rem; grid-column: 1 / -1; max-width: 70ch; }
+.row .meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 14px; font: 400 var(--step--1) var(--mono); color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 6px; font: 500 0.75rem/1 var(--mono); letter-spacing: 0.04em; text-transform: uppercase; padding: 5px 9px; border-radius: 5px; background: var(--ok-soft); color: var(--ok); white-space: nowrap; align-self: start; }
+.pill.prog { background: var(--warn-soft); color: var(--warn); }
+.pill.data { background: var(--code-bg); color: var(--muted); }
+
+/* detail */
+.detail-head { display: grid; gap: 14px; }
+.detail-head h1 { font-size: var(--step-3); font-weight: 800; }
+.detail-head .lede { font-size: var(--step-1); max-width: 62ch; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.links { display: flex; flex-wrap: wrap; gap: 10px; }
+.block { display: grid; gap: 12px; }
+.block h2 { font-size: var(--step-2); }
+.block p, .block li { max-width: 68ch; }
+.block ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.pipe { overflow-x: auto; background: var(--code-bg); border-radius: 8px; padding: 16px 18px; }
+.pipe ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 0; align-items: stretch; width: max-content; }
+.pipe li { display: flex; align-items: center; font: 500 var(--step--1) var(--mono); }
+.pipe li span { padding: 7px 11px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; white-space: nowrap; }
+.pipe li + li::before { content: "→"; padding: 0 8px; color: var(--accent); }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font: 500 var(--step--1) var(--mono); letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); background: var(--code-bg); }
+td.num { font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 0.9rem; white-space: nowrap; }
+.note { border-left: 3px solid var(--warn); background: var(--warn-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; color: var(--ink); max-width: 72ch; }
+.note b { color: var(--warn); }
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border-top: 1px solid var(--line); padding-top: 20px; }
+.pager a { display: grid; gap: 2px; text-decoration: none; color: var(--ink); padding: 10px 0; }
+.pager a:last-child { text-align: right; }
+.pager a b { font-family: var(--display); font-size: var(--step-1); }
+.pager a:hover b { color: var(--accent); }
+
+/* lists elsewhere */
+.timeline { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.tl { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 6px 24px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+.tl .when { font: 400 var(--step--1) var(--mono); color: var(--muted); padding-top: 4px; }
+.tl h3 { font-size: var(--step-1); }
+.tl .org { color: var(--muted); font-size: var(--step--1); margin: 2px 0 8px; }
+.tl ul { margin: 0; padding-left: 1.1em; display: grid; gap: 5px; }
+.cards3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.doc { display: grid; gap: 8px; align-content: start; padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.doc h3 { font-size: var(--step-1); }
+.doc p { color: var(--muted); font-size: 0.95rem; }
+.contact { display: grid; gap: 10px; }
+.contact .line { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.contact .addr { font: 500 var(--step-1) var(--mono); user-select: all; }
+.toast { font-size: var(--step--1); color: var(--ok); min-height: 1.4em; }
+
+@media (max-width: 860px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: sticky; top: env(safe-area-inset-top, 0px); height: auto; z-index: 5; background: var(--bg); border-right: 0; border-bottom: 1px solid var(--line); padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); flex-direction: row; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+  .brand span, .rail-foot, .sub, .layers a .k { display: none; }
+  .layers { display: flex; flex-wrap: wrap; gap: 2px; }
+  .layers a { display: block; padding: 5px 9px; font-size: var(--step--1); }
+  .band { grid-template-columns: minmax(0, 1fr); }
+  .tl { grid-template-columns: minmax(0, 1fr); }
+  td.num { white-space: normal; }
+  main { padding-block: 24px 64px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .view { animation: rise 0.28s ease-out both; }
+  @keyframes rise { from { transform: translateY(6px); } to { transform: none; } }
+}
+</style>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d6b6b'/%3E%3Cpath d='M9 8h8a5 5 0 0 1 0 10h-4v6H9z' fill='%23f1f3f0'/%3E%3C/svg%3E">
+<meta property="og:title" content="Rakshit Ratan Pathak">
+<meta property="og:description" content="Compilers and GPU tooling in C++, ML systems with measured results, tested backends.">
+<meta property="og:url" content="https://rakshitrpathak.github.io/">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://rakshitrpathak.github.io/">
+</head>
+<body>
+<div class="shell">
+  <nav class="rail" aria-label="Site">
+    <a class="brand" href="#top"><b>Rakshit Ratan Pathak</b><span>Compilers, GPU tooling, ML systems</span></a>
+    <ul class="layers" id="layers"></ul>
+    <div class="rail-foot">
+      <a href="https://github.com/RakshitRPathak" target="_blank" rel="noopener">github.com/RakshitRPathak</a>
+      <a href="https://www.linkedin.com/in/rakshit-ratan-pathak-20a32228a" target="_blank" rel="noopener">LinkedIn</a>
+      <span>VIT Vellore · Class of 2027</span>
+    </div>
+  </nav>
+  <main id="main" tabindex="-1">
+    <div class="col view" id="view"></div>
+    <noscript><div class="col"><p>This site needs JavaScript for navigation. My code is at <a href="https://github.com/RakshitRPathak">github.com/RakshitRPathak</a>.</p></div></noscript>
+  </main>
+</div>
+
+<script>
+const GH = "https://github.com/RakshitRPathak/";
+const TRACKS = {
+  systems: { name: "Systems and compilers", depth: "C++ · CUDA · MLIR", blurb: "Compilers, GPU kernels and the tooling that tunes them." },
+  ml:      { name: "ML systems and research", depth: "Python · conformal · RAG", blurb: "Models judged by multi-seed results, with code and data released." },
+  backend: { name: "Software engineering", depth: "Java · TypeScript · Python", blurb: "Agents, storage engines and services where correctness under failure is the point." }
+};
+
+// status: "done" or "prog"; data: what the numbers come from
+const PROJECTS = [
+  { slug: "ptxforge", track: "systems", title: "PTXForge", sub: "GPU kernel autotuner and MLIR passes in C++20",
+    status: "prog", data: "No GPU results yet", stack: ["C++20", "MLIR / LLVM 19", "TableGen", "CUDA Driver API"],
+    links: [],
+    lede: "A closed-loop autotuner for a fused GEMM + bias + GELU CUDA kernel, with custom MLIR passes for epilogue fusion and shared-memory padding.",
+    problem: "Choosing tile sizes and shared-memory layout for a GPU kernel by hand is slow, and a wrong guess can cost several times in throughput. PTXForge searches the configuration space with a cost model, measures candidates, and keeps a trace of every decision.",
+    pipe: ["linalg", "fuse-epilogue", "tile (transform schedule)", "bufferize", "pad-workgroup-memory", "gpu → nvvm → llvm", "PTX", "CUDA runner"],
+    how: [
+      "Header-only C++20 core: a 3,610-config tile search space, a roofline cost model (arithmetic intensity, register caps, occupancy, wave quantization) and closed-loop search.",
+      "One bank-conflict model is shared by the tuner and the MLIR padding pass, so the compiler and the cost model agree on what conflict-free means.",
+      "Advisors (none, random, rules, knowledge graph, external LLM) propose configs; every suggestion is validated in C++ before it runs.",
+      "The CUDA runner loads PTX in-process through the Driver API and checks results against an fp64 reference before it times anything."
+    ],
+    results: [["Search space (2048³ on a T4)", "3,610 configs"], ["Unit tests", "16, clean under ASan + UBSan"], ["Transposed tile store, no padding", "8-way bank conflict"], ["Same store, 1 float of padding", "4-way"], ["Same store, 4 floats of padding", "conflict-free"], ["C++ vs Python reference cost model", "identical on every config, 4 GPUs × 3 sizes"]],
+    caveat: "The MLIR passes and the CUDA runner are written but not yet compiled against LLVM or run on a GPU. There are no GFLOP/s numbers here on purpose; they come after the first run on a real GPU." },
+
+  { slug: "minic", track: "systems", title: "minic", sub: "A compiler in C++17",
+    status: "done", data: "Deterministic tests", stack: ["C++17", "CMake", "ASan / UBSan"],
+    links: [["Code", GH + "minic"]],
+    lede: "A dependency-free compiler for a small imperative language, going through the same stages as a production compiler.",
+    problem: "Built to understand every stage between source text and execution, including the parts textbooks skip: error messages with line numbers, forward jumps, and keeping optimizations from changing behaviour.",
+    pipe: ["source", "lexer", "parser (AST)", "semantic analysis", "optimizer", "bytecode + backpatching", "stack VM"],
+    how: [
+      "Hand-written lexer with one character of lookahead; recursive-descent parser building an AST.",
+      "Constant folding and dead-branch and dead-loop elimination. Folding shares its arithmetic code with the VM, so both agree on overflow and division.",
+      "Forward jumps are resolved by backpatching, the same problem linkers solve with relocations.",
+      "Semantic analysis runs before optimization, so removing dead code can never change which programs compile."
+    ],
+    results: [["Size", "1,200+ lines, no dependencies"], ["Automated tests", "43 (12 check exact error messages)"], ["Optimized vs unoptimized output", "identical on all 14 test programs"], ["Sanitizers", "clean under ASan + UBSan"]],
+    caveat: "" },
+
+  { slug: "cuda-gpu-bench", track: "systems", title: "cuda-gpu-bench", sub: "CUDA kernels and analysis",
+    status: "prog", data: "No GPU results yet", stack: ["CUDA", "C++", "PTX", "ThreadSanitizer"],
+    links: [["Code", GH + "cuda-gpu-bench"]],
+    lede: "Hand-written CUDA kernels for vector add, matrix multiply and sum reduction, with a CPU emulator that tests kernel logic without a GPU.",
+    problem: "Each kernel answers one question a GPU performance engineer asks: how much does shared-memory tiling help, and what does synchronization cost (atomics vs shared-memory tree vs warp shuffles)?",
+    pipe: ["kernel source", "CPU emulator tests", "clang → PTX", "nvcc build", "CUDA-event timing", "CPU reference check"],
+    how: [
+      "Naive and shared-memory tiled matrix multiply, plus three reductions: contended atomics, shared-memory tree and warp shuffle.",
+      "A CPU emulator of threads, blocks, shared memory, barriers, atomics and warp shuffles runs the kernel logic on any machine.",
+      "Deliberately broken kernels (wrong index, missing barrier, missing atomic) are all caught by the emulator or a sanitizer.",
+      "All six kernels compile to PTX; a script counts global and shared loads, barriers and shuffles per kernel."
+    ],
+    results: [["Emulator checks", "33, all pass"], ["Removed __syncthreads()", "flagged by ThreadSanitizer as a data race"], ["Kernels compiled to PTX", "6 of 6"]],
+    caveat: "Written on a machine without a GPU. The benchmark has not yet been built with nvcc or run on hardware, so the repository reports no performance numbers." },
+
+  { slug: "opinion-lineage", track: "ml", title: "Opinion Lineage System", sub: "Self-correcting sentiment and lineage-aware RAG",
+    status: "done", data: "Real tweets", stack: ["Python", "scikit-learn", "RAG"],
+    links: [["Paper code", GH + "OpinionLineage-OLS"], ["RAG system", GH + "Opinion-lineage-system"]],
+    lede: "Estimates organic sentiment from streams full of reposts, paraphrases, coordinated copies and AI rewrites, and corrects published estimates when provenance changes.",
+    problem: "Counting every post equally lets amplification pass as opinion. When a source is later found to be a bot network, the published sentiment is already wrong.",
+    pipe: ["posts", "lineage edge model", "opinion-lineage graph", "independence weights", "organic sentiment", "selective rollback"],
+    how: [
+      "A calibrated gradient-boosted edge model labels each post as a repost, quote, paraphrase, AI derivative or coordinated copy of an earlier one.",
+      "Weights down-rank dependent and synthetic posts so the aggregate reflects independent opinion.",
+      "Selective Dependency Rollback turns a provenance revision into an exact update over the affected lineage only, with no model re-runs.",
+      "A RAG layer gives each lineage one evidence slot, says how much volume is amplification, and corrects answers in place when a source is retracted."
+    ],
+    results: [["Provenance error, OLS (40% contamination)", "0.0030"], ["Best heuristic pipeline", "0.0075"], ["Raw aggregation", "0.0899"], ["RAG answer error, lineage-aware vs naive", "0.061 vs 0.098"]],
+    caveat: "", patent: "Published, application 202641115708" },
+
+  { slug: "railconflict-pscl", track: "ml", title: "RailConflict-PSCL", sub: "Railway collision-risk assessment",
+    status: "done", data: "Simulated network", stack: ["Python", "conformal prediction", "gradient boosting"],
+    links: [["Code and data", GH + "RailConflict-PSCL"]],
+    lede: "A collision-risk classifier with two safety layers, tested on a railway graph digital twin with degraded sensor data.",
+    problem: "A classifier that is accurate on average can still miss the rare Critical encounters that matter most. The goal was to cut those misses without flooding drivers with false emergencies.",
+    pipe: ["network digital twin", "degraded observations", "classifier", "per-class conformal escalation", "braking-physics shield", "intervention tier"],
+    how: [
+      "Labels are the minimum physical intervention that avoids each conflict, computed from hidden true state.",
+      "Mondrian conformal prediction gives per-severity-class bounds on under-classification; the decision is the most severe tier in the set.",
+      "An ETCS-style braking shield overrides the model when physics says a stop is needed."
+    ],
+    results: [["Missed-Critical, gradient boosting", "9.9%"], ["Missed-Critical, braking-rule check", "22.9%"], ["Missed-Critical, PSCL", "0.7%"], ["False-emergency rate, PSCL", "9.0%"], ["Evaluation", "10 seeds"]],
+    caveat: "Results come from a simulated railway network, not field data.", patent: "Filed (railway collision avoidance)" },
+
+  { slug: "trustdecay-tkg", track: "ml", title: "TrustDecay-TKG", sub: "IT-asset audit prioritization",
+    status: "done", data: "Simulated enterprise", stack: ["Python", "temporal knowledge graphs", "conformal prediction"],
+    links: [["Code and data", GH + "TrustDecay-TKG"], ["Dashboard prototype", GH + "Trust-Decay-trust-model"]],
+    lede: "Forecasts how far each IT asset's trust has decayed since its last audit, then turns forecasts into an audit queue with a guarantee on missed assets.",
+    problem: "Audit teams cover a fraction of assets each cycle. Rotation and severity-score rules spend that budget on the wrong assets.",
+    pipe: ["audit + security events", "temporal knowledge graph", "features", "trust-decay forecast", "adaptive conformal selection", "audit queue"],
+    how: [
+      "Events become time-stamped graph quadruples; features summarise each asset's recent history and neighbourhood.",
+      "Delayed-feedback adaptive conformal selection handles audit outcomes that arrive weeks late and holds missed severe assets near a target rate.",
+      "Ablations showed the gain comes from temporal features; relational graph features added little in this setting."
+    ],
+    results: [["Precision at 10% audit budget", "54%"], ["Rotation audits", "16%"], ["Highest CVSS first", "14%"], ["Prototype dashboard tests", "68"]],
+    caveat: "Everything runs on a simulated enterprise; results describe this simulator, not real organisations.", patent: "Published, application 202641108535" },
+
+  { slug: "vericloud", track: "ml", title: "VeriCloud", sub: "News claim verification",
+    status: "done", data: "Simulated news world", stack: ["Python", "scikit-learn", "BM25 / TF-IDF"],
+    links: [["Code", GH + "VeriCloud"]],
+    lede: "Verifies claims against retrieved evidence while learning which sources to trust, and abstains when evidence is thin.",
+    problem: "Coordinated sybil sites can outvote real sources. Verification has to stay accurate when part of the evidence is planted.",
+    pipe: ["claim", "BM25 + TF-IDF retrieval", "stance model", "source reliability", "calibrated verdict", "abstain if thin"],
+    how: [
+      "Hybrid retrieval, a gradient-boosted stance model and Bayesian source-reliability learning are fused into a calibrated verdict.",
+      "Monte-Carlo sampling of reliabilities gives a credible interval and a verdict-flip probability.",
+      "Claims are split by time, and significance is tested with paired Wilcoxon tests across seeds."
+    ],
+    results: [["Macro-F1 under attack, VeriCloud", "0.790"], ["Best baseline under attack", "0.700"], ["Significance", "p = 0.008, 8 of 8 seeds"], ["Clean data", "ties the baselines (0.801)"], ["Tests", "23"]],
+    caveat: "All numbers come from a synthetic news world with known attackers. They show how the mechanisms behave, not real-world accuracy." },
+
+  { slug: "emergency-control", track: "ml", title: "Risk-Constrained Emergency Control", sub: "Safety-gated intervention screening",
+    status: "done", data: "Simulated plant", stack: ["Python", "scikit-learn", "Vercel"],
+    links: [["Live demo", "https://tarp-ml.vercel.app/"], ["Code", GH + "Risk-Constrained-Emergency-Control-System"]],
+    lede: "Predicts whether a candidate micro-intervention will be protective, harmful, ineffective or inconsistent before it is physically tested.",
+    problem: "In emergency control, trying an action to see what happens can make things worse. This screener is the first safety layer before escalation.",
+    pipe: ["candidate action", "protected-zone constraint", "classifier", "safety gate", "allow / escalate"],
+    how: [
+      "A four-zone, source-informed generator produces 5,000 labelled records.",
+      "Three classifiers are compared with a safety-first selection rule; a tuned gate blocks uncertain actions.",
+      "Deployed as a live web console on Vercel; built as a course project on the published patent."
+    ],
+    results: [["Records", "5,000 (80:20 stratified split)"], ["Harmful actions caught (gradient boosting)", "92.9%"], ["Unsafe actions passed as safe, with the gate", "0.8%"], ["Same, without the gate", "2.0%"]],
+    caveat: "", patent: "Published" },
+
+  { slug: "wildfire", track: "ml", title: "Wildfire Prediction and Response", sub: "Risk prediction with resource orchestration",
+    status: "done", data: "Real data (UCI)", stack: ["Python", "scikit-learn", "Flask"],
+    links: [["Code", GH + "Wildfire-prediction-ml-model"]],
+    lede: "An ensemble with confidence-gated risk levels, resource allocation under scarcity and champion/challenger retraining, behind a Flask dashboard.",
+    problem: "Fire services need a risk level they can act on and a way to allocate scarce crews, not just a probability.",
+    pipe: ["weather + location", "RF / GB / LR ensemble", "confidence gate", "risk level", "resource allocation"],
+    how: [
+      "Trains on the UCI Forest Fires data with the disclosure's own experimental setup.",
+      "Reports cross-validated results measured on real data instead of the projected figures in the patent text."
+    ],
+    results: [["Tests", "66"], ["Ensemble AUC, 5-fold × 10 repeats", "0.58 ± 0.05"]],
+    caveat: "", patent: "Published, application 202641083188" },
+
+  { slug: "mine-tremor", track: "ml", title: "Mine Tremor Detection", sub: "Edge-AI simulation study",
+    status: "done", data: "Synthetic signals", stack: ["Python", "Random Forest", "ESP32 (design)"],
+    links: [["Code", GH + "Mining-tremor-detection-Patent-cum-grant"]],
+    lede: "Simulation of distributed sensor nodes that classify vibration on the edge and confirm tremors across several nodes before alerting.",
+    problem: "A single vibration sensor raises false alarms from machinery. Multi-node confirmation trades a little latency for far fewer false alerts.",
+    pipe: ["IMU sensing", "preprocessing", "features", "Random Forest", "hybrid validation", "multi-node confirmation", "alert"],
+    how: [
+      "Each node (ESP32 + MPU6050 in the design) runs a Random Forest and checks its prediction against physical thresholds.",
+      "Streaming detection, latency and firmware fault injection are simulated in three stages.",
+      "Pitched to NRDC for grant funding."
+    ],
+    results: [["False-alarm rate, Random Forest", "3.1%"], ["False-alarm rate, threshold only", "37.2%"], ["Four-class accuracy (normal to structural)", "98.2%"]],
+    caveat: "Every result comes from synthetic signals, not hardware or field measurements.", patent: "Published, application 202641075003" },
+
+  { slug: "agentic-bug-repair", track: "backend", title: "agentic-bug-repair", sub: "Autonomous bug-fixing agent in Java",
+    status: "done", data: "Seeded-bug benchmark", stack: ["Java 17", "JDK compiler API", "no dependencies"],
+    links: [["Code", GH + "agentic-bug-repair"]],
+    lede: "Takes a Java repository with failing tests and tries to produce a verified fix as a pull request, in the style of SWE-agent systems but small enough to read in a sitting.",
+    problem: "A failing build usually needs a person to find the faulty method and try fixes by hand. The agent automates that loop and only publishes a diff that passes every test on a clean checkout.",
+    pipe: ["failing build (webhook or CLI)", "code graph", "fault localization", "patch synthesis", "sandboxed tests", "critic (≤ 3 rounds)", "clean-checkout re-check", "pull request"],
+    how: [
+      "The JDK compiler API parses the repository into a code graph with call, import, inheritance and field-write edges.",
+      "Fault localization combines test failures, the graph and text retrieval to rank suspect methods.",
+      "Candidate diffs run in an isolated sandbox; failures are fed back for up to three correction rounds.",
+      "A GitHub webhook can trigger runs, and a dashboard shows the state machine, the diff and telemetry. State-changing calls require same-origin JSON on a loopback host."
+    ],
+    results: [["Seeded bugs fixed, offline synthesizer", "11 of 17"], ["Single-edit bugs fixed", "11 of 12"], ["Bugs needing new code fixed", "0 of 5"], ["Bug in top 3 suspects, graph vs text only", "94% vs 88%"], ["Bug ranked first, graph vs text only", "47% vs 59%"], ["Size and tests", "~5,700 lines of Java, 147 tests"]],
+    caveat: "With 17 bugs, the localization differences are not statistically significant. The model-backed repair path has only been tested against a stub API, the Docker sandbox has not been run, and no real GitHub pull request has been opened. These numbers are not comparable to SWE-bench scores." },
+
+  { slug: "mini-kv-store", track: "backend", title: "mini-kv-store", sub: "Crash-safe LSM-tree key-value store",
+    status: "done", data: "Fault-injection tests", stack: ["Java", "JDK only"],
+    links: [["Code", GH + "mini-kv-store"]],
+    lede: "A small storage engine built the way production LSM stores are, and tested by crashing it on purpose.",
+    problem: "A key-value store is only useful if a crash at any moment leaves it recoverable with no acknowledged write lost.",
+    pipe: ["put", "write-ahead log (checksummed)", "memtable", "flush to SSTable", "k-way merge compaction", "atomic manifest"],
+    how: [
+      "The write-ahead log carries checksums and truncates a torn tail on recovery.",
+      "SSTables have sparse indexes and Bloom filters; compaction is a k-way merge, and the manifest is swapped atomically.",
+      "Tests inject a crash at every flush and compaction step and check that recovery is correct."
+    ],
+    results: [["Tests", "39, including crash injection at every flush and compaction step"]],
+    caveat: "" },
+
+  { slug: "system-design-primitives", track: "backend", title: "system-design-primitives", sub: "Caches, rate limiters and hashing",
+    status: "done", data: "Unit tests", stack: ["Java", "JDK only"],
+    links: [["Code", GH + "system-design-primitives"]],
+    lede: "The building blocks that system-design interviews ask about, implemented and tested instead of drawn on a whiteboard.",
+    problem: "Knowing that an LRU cache or a token bucket exists is different from getting its edge cases right.",
+    pipe: ["LRU / LFU cache", "token bucket", "sliding-window limiter", "consistent hashing", "Bloom filter"],
+    how: [
+      "LRU and LFU caches, token-bucket and sliding-window rate limiters, consistent hashing and a Bloom filter.",
+      "Each is covered by tests for its edge cases."
+    ],
+    results: [["Tests", "32"]],
+    caveat: "" },
+
+  { slug: "dsa-patterns", track: "backend", title: "dsa-patterns", sub: "Interview patterns, tested against brute force",
+    status: "done", data: "Differential tests", stack: ["Java", "JDK only"],
+    links: [["Code", GH + "dsa-patterns"]],
+    lede: "Algorithm patterns organised by how to recognise the problem, each checked against a brute-force solution.",
+    problem: "Pattern libraries often contain subtle bugs because they are only tested on a few hand-picked examples.",
+    pipe: ["recognise the pattern", "optimised solution", "brute-force oracle", "thousands of random inputs"],
+    how: [
+      "13 classes of patterns, organised by the clue in the problem statement that points to them.",
+      "Every solution is compared with a brute force on thousands of random inputs.",
+      "Planted bugs were used to check that the tests have teeth: 9 of 11 were caught, and the other 2 behave identically to the original."
+    ],
+    results: [["Differential tests", "52"], ["Planted bugs caught", "9 of 11 (2 are behaviour-identical)"]],
+    caveat: "" },
+
+  { slug: "healthcare", track: "backend", title: "Healthcare Appointment Manager", sub: "Concurrency-safe booking backend",
+    status: "done", data: "Integration tests", stack: ["TypeScript", "Node.js", "PostgreSQL", "Redis"],
+    links: [["Code", GH + "Healthcare-Appointment-Follow-up-Manager"]],
+    lede: "A REST backend for patients, doctors and admins where two people can never book the same slot and no notification is silently lost.",
+    problem: "Booking systems fail at the edges: two requests for one slot, a doctor's leave added after bookings exist, an email provider that times out.",
+    pipe: ["REST API", "role-based access", "slot hold (5 min)", "exclusion constraint", "transactional outbox", "worker + retries", "dead-letter queue"],
+    how: [
+      "PostgreSQL exclusion constraints and 5-minute slot holds prevent double-booking; a concurrent booking gets a clear conflict error.",
+      "A transactional outbox with retries and a dead-letter queue makes notifications reliable.",
+      "LLM visit summaries fall back to a deterministic template when the model is unavailable."
+    ],
+    results: [["Integration tests", "51, against a real Postgres"]],
+    caveat: "This repository holds the backend; the React portals are not included." },
+
+  { slug: "inventory", track: "backend", title: "Inventory Management System", sub: "Secure REST API with an audit trail",
+    status: "done", data: "Unit tests", stack: ["Python", "SQL", "REST"],
+    links: [["Code", GH + "Inventory-Management-System"]],
+    lede: "A small inventory service with real security controls and a tamper-evident audit log.",
+    problem: "Stock records are only useful if you can prove nobody quietly edited them.",
+    pipe: ["login", "signed token", "role check", "stock transaction", "hash-chained audit log", "verify"],
+    how: [
+      "PBKDF2 password hashing, role-based access and signed tokens.",
+      "Every change is appended to a hash-chained audit log that can be verified end to end.",
+      "Sensor telemetry is reconciled against book stock; an optional retrieval layer answers questions with an injection-aware prompt."
+    ],
+    results: [["Tests", "15 (edge cases, tampering, failure paths)"]],
+    caveat: "" },
+
+  { slug: "pdf-audio", track: "backend", title: "PDF-to-Audio Generator", sub: "Background narration jobs",
+    status: "done", data: "Offline tests", stack: ["Python", "Flask", "Google Cloud TTS"],
+    links: [["Code", GH + "Pdf-Audio-converter"]],
+    lede: "Upload a text-based PDF and get a narration back, with interchangeable speech backends.",
+    problem: "Long documents hit speech-API limits and flaky networks; the service has to chunk, retry and report progress.",
+    pipe: ["upload", "PDF text extraction", "chunking", "TTS backend (retry + backoff)", "background job", "audio"],
+    how: [
+      "Google Cloud Text-to-Speech, gTTS or offline eSpeak behind one interface.",
+      "Background jobs with progress, cancel, cache and expiry."
+    ],
+    results: [["Tests", "34, all offline"]],
+    caveat: "" }
+];
+
+const PATENTS = [
+  ["Confidence-Weighted Opinion Lineage System for Self-Correcting Sentiment Aggregation", "Published", "202641115708", "opinion-lineage"],
+  ["Predictive Trust Assessment and Audit Prioritization of Enterprise Information System Assets", "Published", "202641108535", "trustdecay-tkg"],
+  ["Wildfire Prediction and Response System", "Published", "202641083188", "wildfire"],
+  ["Hybrid Edge-AI Mine Safety and Tremor Detection Using Distributed IoT Sensor Nodes", "Published", "202641075003", "mine-tremor"],
+  ["Risk-Constrained Emergency Control via Reversible Micro-Interventions", "Published", "", "emergency-control"],
+  ["AI-Enabled Predictive Railway Collision Avoidance Using Train-Dynamics Modeling", "Filed", "", "railconflict-pscl"]
+];
+const PAPERS = [
+  ["Physics-Shielded Conformal Learning for Network-Aware Railway Collision-Risk Assessment Under Degraded Observations", "railconflict-pscl"],
+  ["Forecasting Information-System Trust Decay on Temporal Knowledge Graphs With Delayed-Feedback Conformal Audit Selection", "trustdecay-tkg"],
+  ["Confidence-Weighted Opinion Lineage for Organic Sentiment Estimation Under Synthetic and Coordinated Amplification", "opinion-lineage"]
+];
+
+const SECTIONS = [["", "Overview", "~"], ["work", "Work", "01"], ["research", "Research and patents", "02"], ["experience", "Experience", "03"], ["resumes", "Resumes", "04"], ["contact", "Contact", "05"]];
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const bySlug = Object.fromEntries(PROJECTS.map(p => [p.slug, p]));
+const ext = (href, text, cls = "btn") => `<a class="${cls}" href="${esc(href)}" target="_blank" rel="noopener">${esc(text)}</a>`;
+let workFilter = "all";
+
+function path(parts) {
+  const crumbs = [`<a href="#top">~</a>`].concat(parts.map(([h, t], i) =>
+    i === parts.length - 1 ? `<span>${esc(t)}</span>` : `<a href="#${h}">${esc(t)}</a>`));
+  return `<div class="path" aria-label="Location">${crumbs.join('<span class="sep">/</span>')}</div>`;
+}
+function statusPill(p) {
+  return p.status === "prog" ? `<span class="pill prog">In progress</span>` : `<span class="pill">Complete</span>`;
+}
+
+function overview() {
+  const bands = Object.entries(TRACKS).map(([k, t]) => {
+    const chips = PROJECTS.filter(p => p.track === k).map(p =>
+      `<a class="chip" href="#p-${p.slug}"><span class="dot${p.status === "prog" ? " prog" : ""}"></span>${esc(p.title)}</a>`).join("");
+    return `<div class="band"><div><span class="depth">${esc(t.depth)}</span><h3>${esc(t.name)}</h3><p>${esc(t.blurb)}</p></div><div class="chips">${chips}</div></div>`;
+  }).join("");
+  return `
+  <section class="hero">
+    <span class="label">B.Tech Computer Science and Business Systems · VIT Vellore · 2027</span>
+    <h1>I build compilers, GPU tooling and ML systems, and I measure them.</h1>
+    <p class="lede">Final-year student looking for a six-month internship from January 2027. I wrote a C++17 compiler, a Java bug-repair agent and a crash-safe storage engine, built the RAG layer of a healthcare LLM product at aiDataWorks, and publish my ML work with code, data and multi-seed results.</p>
+    <div class="facts">
+      <div><b>8.3</b><span>CGPA</span></div>
+      <div><b>6 / 5</b><span>patents filed / published</span></div>
+      <div><b>3</b><span>IEEE Access manuscripts</span></div>
+      <div><b>${PROJECTS.length}</b><span>projects with public code</span></div>
+    </div>
+    <div class="cta"><a class="btn primary" href="#work">See the work</a><a class="btn" href="#resumes">Resumes</a><a class="btn" href="#contact">Contact</a></div>
+  </section>
+  <section class="block">
+    <div class="section-head"><span class="label">The stack, top to bottom</span><h2>Three layers of work</h2><p>Each layer opens into its projects. Amber dots mark work in progress.</p></div>
+    <div class="stack">${bands}</div>
+  </section>`;
+}
+
+function work() {
+  const btn = (k, t) => `<button type="button" data-filter="${k}" aria-pressed="${workFilter === k}">${esc(t)}</button>`;
+  const rows = PROJECTS.filter(p => workFilter === "all" || p.track === workFilter).map(p => `
+    <a class="row" href="#p-${p.slug}">
+      <h3>${esc(p.title)} <span style="font-weight:500;color:var(--muted)">· ${esc(p.sub)}</span></h3>
+      ${statusPill(p)}
+      <p>${esc(p.lede)}</p>
+      <div class="meta"><span>${esc(p.stack.join(" · "))}</span><span>${esc(p.data)}</span></div>
+    </a>`).join("");
+  return `${path([["work", "work"]])}
+  <div class="section-head"><h2>Work</h2><p>Every project links to its code. Each page says what the numbers come from and what has not been verified yet.</p></div>
+  <div class="filters" role="group" aria-label="Filter by layer">${btn("all", "All")}${Object.entries(TRACKS).map(([k, t]) => btn(k, t.name)).join("")}</div>
+  <div class="rows">${rows}</div>`;
+}
+
+function detail(p) {
+  const i = PROJECTS.indexOf(p), prev = PROJECTS[(i - 1 + PROJECTS.length) % PROJECTS.length], next = PROJECTS[(i + 1) % PROJECTS.length];
+  const links = p.links.length ? p.links.map(([t, h], j) => ext(h, t, j === 0 ? "btn primary" : "btn")).join("") : `<span class="label">Repository coming soon</span>`;
+  return `${path([["work", "work"], ["p-" + p.slug, p.slug]])}
+  <header class="detail-head">
+    <span class="label">${esc(TRACKS[p.track].name)}</span>
+    <h1>${esc(p.title)}</h1>
+    <p class="lede">${esc(p.lede)}</p>
+    <div class="pills">${statusPill(p)}<span class="pill data">${esc(p.data)}</span>${p.patent ? `<span class="pill data">Patent: ${esc(p.patent)}</span>` : ""}</div>
+    <div class="links">${links}</div>
+  </header>
+  <section class="block"><h2>The problem</h2><p>${esc(p.problem)}</p></section>
+  <section class="block"><h2>How it works</h2>
+    <div class="pipe" role="img" aria-label="Pipeline: ${esc(p.pipe.join(", then "))}"><ol>${p.pipe.map(s => `<li><span>${esc(s)}</span></li>`).join("")}</ol></div>
+    <ul>${p.how.map(h => `<li>${esc(h)}</li>`).join("")}</ul>
+  </section>
+  <section class="block"><h2>Results</h2>
+    <div class="tablewrap"><table><thead><tr><th>Measure</th><th>Value</th></tr></thead><tbody>${p.results.map(([a, b]) => `<tr><td>${esc(a)}</td><td class="num">${esc(b)}</td></tr>`).join("")}</tbody></table></div>
+    ${p.caveat ? `<p class="note"><b>Read before quoting:</b> ${esc(p.caveat)}</p>` : ""}
+  </section>
+  <section class="block"><h2>Stack</h2><div class="chips">${p.stack.map(s => `<span class="chip">${esc(s)}</span>`).join("")}</div></section>
+  <nav class="pager" aria-label="More projects"><a href="#p-${prev.slug}"><span class="label">Previous</span><b>${esc(prev.title)}</b></a><a href="#p-${next.slug}"><span class="label">Next</span><b>${esc(next.title)}</b></a></nav>`;
+}
+
+function research() {
+  const prow = ([t, s, n, slug]) => `<tr><td><a href="#p-${slug}">${esc(t)}</a></td><td>${s === "Published" ? `<span class="pill">Published</span>` : `<span class="pill prog">Filed</span>`}</td><td class="num">${esc(n || "–")}</td></tr>`;
+  return `${path([["research", "research"]])}
+  <div class="section-head"><h2>Research and patents</h2><p>Six patent applications filed through the VIT IPR Cell, five published. Each one has a working prototype or study on GitHub.</p></div>
+  <section class="block"><h2>Patents</h2>
+    <div class="tablewrap"><table><thead><tr><th>Title</th><th>Status</th><th>Application no.</th></tr></thead><tbody>${PATENTS.map(prow).join("")}</tbody></table></div>
+  </section>
+  <section class="block"><h2>IEEE Access manuscripts</h2>
+    <p>Each manuscript ships with open code, data and a one-command reproducible run.</p>
+    <div class="rows">${PAPERS.map(([t, slug]) => `<a class="row" href="#p-${slug}"><h3 style="font-size:var(--step-0)">${esc(t)}</h3><div class="meta"><span>Code and data: ${esc(bySlug[slug].title)}</span></div></a>`).join("")}</div>
+  </section>`;
+}
+
+function experience() {
+  return `${path([["experience", "experience"]])}
+  <div class="section-head"><h2>Experience</h2></div>
+  <div class="timeline">
+    <div class="tl"><div class="when">May–Jul 2026</div><div><h3>Software Engineering Intern</h3><p class="org">aiDataWorks · remote</p><ul>
+      <li>Built the generative AI layer of a healthcare product: prompts, retrieval and context for a RAG pipeline on OpenAI APIs and enterprise Google Cloud.</li>
+      <li>Wrote API- and database-level test cases for the LLM features and re-verified fixes with developers.</li>
+      <li>Wrote data-governance and security policies for three client engagements: mainframe data at a Tier 1 health insurer, cloud shop-floor data at a global semiconductor manufacturer, and a credential migration off Windows Server 2012.</li></ul></div></div>
+    <div class="tl"><div class="when">May–Jun 2025</div><div><h3>Computer Science Intern</h3><p class="org">THDC India Limited · Khurja Super Thermal Power Project</p><ul>
+      <li>Worked on SQL and SAP ERP data workflows in Python and Pandas, plus plant networking, SCADA/PLC systems and cybersecurity controls.</li></ul></div></div>
+    <div class="tl"><div class="when">2023–2027</div><div><h3>B.Tech, Computer Science and Business Systems</h3><p class="org">Vellore Institute of Technology, Vellore · CGPA 8.3</p><ul>
+      <li>Coursework: Computer Organization and Architecture, Operating Systems, Formal Languages and Automata, Data Structures and Algorithms, Design and Analysis of Algorithms, DBMS, Computer Networks.</li>
+      <li>Class XII (CBSE), Delhi Public School Ranchi: 87%. Class X (CBSE), DAV Jharsuguda: 99.8%.</li></ul></div></div>
+    <div class="tl"><div class="when">Ongoing</div><div><h3>Leadership and activities</h3><p class="org">VIT Vellore</p><ul>
+      <li>Secretary, IEEE Power &amp; Energy Society student chapter.</li>
+      <li>Ran a stall and competed in the pitch competition at E-Summit, VIT's entrepreneurship summit.</li>
+      <li>Karate black belt and assistant instructor.</li>
+      <li>Certifications: OCI Generative AI Professional, OCI AI Foundations, Google Cloud Core Infrastructure, Google AI Essentials.</li></ul></div></div>
+  </div>`;
+}
+
+function resumes() {
+  const doc = (t, d, f) => `<div class="doc"><h3>${esc(t)}</h3><p>${esc(d)}</p><a class="btn" href="resume/${f}" target="_blank" rel="noopener">Open PDF</a></div>`;
+  return `${path([["resumes", "resumes"]])}
+  <div class="section-head"><h2>Resumes</h2><p>One page each, tailored to the role. Same facts, different emphasis.</p></div>
+  <div class="cards3">
+    ${doc("Software engineer", "Java and backend: the bug-repair agent, the booking backend, the LSM-tree store and the compiler.", "Rakshit_Ratan_Pathak_Resume_SDE.pdf")}
+    ${doc("AI / ML engineer", "The RAG internship work and five ML projects with measured, multi-seed results.", "Rakshit_Ratan_Pathak_Resume_AI_ML.pdf")}
+    ${doc("Compiler and GPU", "PTXForge, minic and cuda-gpu-bench, for compiler and system-software roles.", "Rakshit_Ratan_Pathak_Resume_Compiler.pdf")}
+  </div>`;
+}
+
+function contact() {
+  return `${path([["contact", "contact"]])}
+  <div class="section-head"><h2>Contact</h2><p>Open to six-month internships from January 2027 in software engineering, ML engineering and compilers.</p></div>
+  <div class="contact">
+    <span class="label">Email</span>
+    <div class="line"><span class="addr" id="addr">rrpathak.0007@gmail.com</span><button class="btn" type="button" id="copy">Copy</button></div>
+    <div class="toast" id="toast" role="status"></div>
+    <div class="cta">${ext("https://github.com/RakshitRPathak", "GitHub")}${ext("https://www.linkedin.com/in/rakshit-ratan-pathak-20a32228a", "LinkedIn")}</div>
+  </div>`;
+}
+
+function nav(active, slug) {
+  const items = SECTIONS.map(([h, t, k]) => {
+    const cur = h === active;
+    let sub = "";
+    if (h === "work" && active === "work") {
+      sub = `<ul class="sub">${PROJECTS.map(p => `<li><a href="#p-${p.slug}" aria-current="${p.slug === slug}">${esc(p.title)}</a></li>`).join("")}</ul>`;
+    }
+    return `<li><a href="#${h || "top"}" aria-current="${cur}"><span class="k">${k}</span><span>${esc(t)}</span></a>${sub}</li>`;
+  }).join("");
+  document.getElementById("layers").innerHTML = items;
+}
+
+function render() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  const view = document.getElementById("view");
+  let html, active = "", slug = null, title = "Rakshit Ratan Pathak";
+  if (h.startsWith("p-") && bySlug[h.slice(2)]) { const p = bySlug[h.slice(2)]; slug = p.slug; active = "work"; html = detail(p); title = p.title + " · Rakshit Ratan Pathak"; }
+  else if (h === "work") { active = "work"; html = work(); title = "Work · Rakshit Ratan Pathak"; }
+  else if (h === "research") { active = h; html = research(); }
+  else if (h === "experience") { active = h; html = experience(); }
+  else if (h === "resumes") { active = h; html = resumes(); }
+  else if (h === "contact") { active = h; html = contact(); }
+  else html = overview();
+  view.innerHTML = html;
+  view.classList.remove("view"); void view.offsetWidth; view.classList.add("view");
+  document.title = title;
+  nav(active, slug);
+  if (h && h !== "top") { window.scrollTo(0, 0); document.getElementById("main").focus({ preventScroll: true }); }
+}
+
+document.addEventListener("click", e => {
+  const f = e.target.closest("[data-filter]");
+  if (f) { workFilter = f.dataset.filter; render(); return; }
+  if (e.target.id === "copy") {
+    const t = document.getElementById("toast"), addr = document.getElementById("addr");
+    const done = () => { t.textContent = "Copied to clipboard."; };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(addr); const s = getSelection(); s.removeAllRanges(); s.addRange(r); t.textContent = "Selected. Press Ctrl+C or ⌘C to copy."; };
+    try { navigator.clipboard.writeText(addr.textContent).then(done, fallback); } catch (_) { fallback(); }
+  }
+});
+window.addEventListener("hashchange", render);
+render();
+</script>
+</body>
+</html>
