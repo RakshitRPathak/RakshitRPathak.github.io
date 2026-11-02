@@ -8,12 +8,12 @@ I build compilers and GPU tooling in C++, ML systems judged by multi-seed result
 
 ## What's on the site
 
-The site has three layers: an overview, a section page, and a page for each project.
+The site has an overview, a page per section, and a page for each project.
 
 | Section | Contents |
 | --- | --- |
-| Overview | Summary and the three layers of work (systems and compilers, ML systems, software engineering) |
-| Work | 17 projects, filterable by layer; each has its own page with the problem, a pipeline diagram, results, caveats and links |
+| Overview | Summary, a chart of my matrix-multiply kernels measured on a Tesla T4, and the three areas of work |
+| Projects | 17 projects, filterable by area; each has its own page with the problem, the pipeline, and an evidence panel (results, data source, caveats, links) |
 | Research and patents | 6 patent applications (5 published) and 3 IEEE Access manuscripts |
 | Experience | aiDataWorks, THDC India Limited, education, leadership, certifications |
 | Resumes | One-page PDFs for software engineering, AI/ML and compiler roles |
@@ -25,9 +25,9 @@ Every project page says where its numbers come from (real data, simulated data o
 
 | Project | Layer | Repository |
 | --- | --- | --- |
-| PTXForge: GPU kernel autotuner and MLIR passes (in progress) | Systems | coming soon |
+| PTXForge: GPU kernel compiler and autotuner, 85.6% of cuBLAS on a T4 (in progress) | Systems | [ptxforge](https://github.com/RakshitRPathak/ptxforge) |
 | minic: a compiler in C++17 | Systems | [minic](https://github.com/RakshitRPathak/minic) |
-| cuda-gpu-bench: CUDA kernels and analysis | Systems | [cuda-gpu-bench](https://github.com/RakshitRPathak/cuda-gpu-bench) |
+| cuda-gpu-bench: CUDA kernels benchmarked on a T4 | Systems | [cuda-gpu-bench](https://github.com/RakshitRPathak/cuda-gpu-bench) |
 | Opinion Lineage System | ML | [OpinionLineage-OLS](https://github.com/RakshitRPathak/OpinionLineage-OLS), [Opinion-lineage-system](https://github.com/RakshitRPathak/Opinion-lineage-system) |
 | RailConflict-PSCL | ML | [RailConflict-PSCL](https://github.com/RakshitRPathak/RailConflict-PSCL) |
 | TrustDecay-TKG | ML | [TrustDecay-TKG](https://github.com/RakshitRPathak/TrustDecay-TKG) |
@@ -45,9 +45,9 @@ Every project page says where its numbers come from (real data, simulated data o
 
 ## How it's built
 
-One static `index.html` with no build step and no framework: plain HTML, CSS and JavaScript. Pages are hash routes (`#work`, `#p-minic`, `#research`), so every view has its own shareable link and the site runs on GitHub Pages as is. It follows the system light or dark theme and works at phone width.
+One static `index.html` with no build step and no framework: plain HTML, CSS and JavaScript. Pages are hash routes (`#work`, `#p-minic`, `#research`), so every view has its own shareable link and the site runs on GitHub Pages as is. It follows the system light or dark theme, works at phone width, and respects reduced-motion settings.
 
-To edit project details, change the `PROJECTS` array near the top of the script in `index.html`.
+To edit project details, change the `PROJECTS` array near the top of the script in `index.html`. The hero chart reads from the `LADDER` array just below it; each entry cites the README its numbers come from.
 
 ```
 index.html     the whole site
