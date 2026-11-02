@@ -34,7 +34,7 @@
       "title": "PTXForge",
       "sub": "GPU kernel compiler and autotuner in C++20",
       "status": "prog",
-      "data": "Measured on a Tesla T4",
+      "data": "Measured on a Tesla T4; MLIR path checked on CPU",
       "stack": [
         "C++20",
         "MLIR / LLVM 19",
@@ -47,56 +47,55 @@
           "https://github.com/RakshitRPathak/ptxforge"
         ]
       ],
-      "lede": "A closed-loop autotuner for a fused GEMM + bias + GELU CUDA kernel, with custom MLIR passes for epilogue fusion and shared-memory padding. On a T4 it reaches 85.6% of cuBLAS.",
+      "lede": "An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner that reaches 85.6% of cuBLAS on a T4 with the nvcc-built kernel.",
       "problem": "Choosing tile sizes and shared-memory layout for a GPU kernel by hand is slow, and a wrong guess can cost several times in throughput. PTXForge searches the configuration space with a cost model, measures every candidate on the GPU, and keeps a trace of each decision.",
       "pipe": [
         "linalg",
         "fuse-epilogue",
-        "tile (transform schedule)",
-        "bufferize",
-        "pad-workgroup-memory",
+        "tile, fuse, vectorize (transform schedule)",
+        "bufferize in place",
+        "approximate-math",
         "gpu → nvvm → llvm",
-        "PTX",
-        "CUDA runner"
+        "PTX (sm_75)"
       ],
       "how": [
-        "Header-only C++20 core: a 3,610-config tile search space, a roofline cost model (arithmetic intensity, register caps, occupancy, wave quantization) and closed-loop search.",
-        "One bank-conflict model is shared by the tuner and the MLIR padding pass, so the compiler and the cost model agree on what conflict-free means.",
-        "Advisors (none, random, rules, knowledge graph, external LLM) propose configs; every suggestion is validated in C++ before it runs.",
-        "The CUDA runner loads PTX in-process through the Driver API, checks each candidate against an fp64 reference, and times it next to cuBLAS in the same run.",
-        "The first T4 run showed the cost model ranks near-optimal configs badly (Spearman ρ = −0.67). The tuner still got to 85.6% of cuBLAS because it keeps the measured best, which is the argument for closed-loop measurement."
+        "The MLIR passes build against LLVM 19 and lower linalg to PTX in six stages, about 0.2 s, with no CUDA toolkit. The kernel takes four pointers and keeps each thread's 4×4 accumulator in registers.",
+        "Four custom passes: epilogue fusion, bank-conflict padding for shared memory, an arith-only tanh/fabs so the kernel needs no libdevice, and removal of the no-op copies bufferization leaves behind.",
+        "Tile sizes come from a transform schedule the tuner renders per config, so trying a new config needs no C++ rebuild.",
+        "Header-only C++20 tuner: a 3,610-config search space, a roofline cost model (arithmetic intensity, register caps, occupancy, wave quantization) and closed-loop search. Advisors (none, random, rules, knowledge graph, LLM) are validated in C++ before anything runs.",
+        "The first T4 run showed the cost model ranks near-optimal configs badly (Spearman ρ = −0.67). The tuner still reached 85.6% of cuBLAS because it keeps the measured best, which is the argument for closed-loop measurement."
       ],
       "results": [
         [
-          "Best config, 2048³ FP32",
+          "Tuned nvcc kernel, 2048³ FP32",
           "3,688.5 GFLOP/s"
-        ],
-        [
-          "Untuned default",
-          "2,074.0 GFLOP/s"
-        ],
-        [
-          "Gain from tuning",
-          "1.78×"
         ],
         [
           "Share of cuBLAS, same run",
           "85.6%"
         ],
         [
+          "Gain from tuning",
+          "1.78×"
+        ],
+        [
           "Cost model vs measured rank",
           "ρ = −0.67"
         ],
         [
-          "Search space",
-          "3,610 configs"
+          "MLIR lowering vs fp64 reference (CPU)",
+          "max error ~1e-6"
+        ],
+        [
+          "FileCheck cases",
+          "7, all pass"
         ],
         [
           "C++ unit tests",
           "16, clean under ASan + UBSan"
         ]
       ],
-      "caveat": "One 40-trial tuning run on a free Colab T4, FP32 only. The MLIR passes and FileCheck tests are written for LLVM 19 but not yet built, and the advisor ablation has not been run on hardware."
+      "caveat": "The 85.6% comes from one 40-trial tuning run of the nvcc-built kernel on a Colab T4. The MLIR-generated PTX is checked numerically on the CPU but hasn't been run on a GPU yet, and it doesn't stage tiles in shared memory, so expect it to be well below the tuned kernel. The advisor ablation hasn't been run on hardware."
     },
     {
       "slug": "minic",

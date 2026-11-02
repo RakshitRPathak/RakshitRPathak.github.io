@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PTXForge · Rakshit Ratan Pathak</title>
-<meta name="description" content="PTXForge: A closed-loop autotuner for a fused GEMM + bias + GELU CUDA kernel, with custom MLIR passes for epilogue fusion and shared-memory padding. On a T4 it reaches 85.6% of cuBLAS.">
+<meta name="description" content="PTXForge: An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner that reaches 85.6% of cuBLAS on a T4 with the nvcc-built kernel.">
 <link rel="canonical" href="https://rakshitrpathak.github.io/projects/ptxforge/">
 <meta property="og:title" content="PTXForge · Rakshit Ratan Pathak">
-<meta property="og:description" content="PTXForge: A closed-loop autotuner for a fused GEMM + bias + GELU CUDA kernel, with custom MLIR passes for epilogue fusion and shared-memory padding. On a T4 it reaches 85.6% of cuBLAS.">
+<meta property="og:description" content="PTXForge: An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner that reaches 85.6% of cuBLAS on a T4 with the nvcc-built kernel.">
 <meta property="og:url" content="https://rakshitrpathak.github.io/projects/ptxforge/">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
@@ -38,7 +38,7 @@
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/projects/">Projects</a><span aria-hidden="true">/</span><a href="/projects/#systems">Systems and compilers</a></nav>
   <header class="dhead">
     <h1>PTXForge</h1>
-    <p class="lede">A closed-loop autotuner for a fused GEMM + bias + GELU CUDA kernel, with custom MLIR passes for epilogue fusion and shared-memory padding. On a T4 it reaches 85.6% of cuBLAS.</p>
+    <p class="lede">An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner that reaches 85.6% of cuBLAS on a T4 with the nvcc-built kernel.</p>
     <div class="pills"><span class="pill prog">In progress</span></div>
   </header>
 </div>
@@ -46,16 +46,16 @@
   <div class="story">
     <section><h2>The problem</h2><p>Choosing tile sizes and shared-memory layout for a GPU kernel by hand is slow, and a wrong guess can cost several times in throughput. PTXForge searches the configuration space with a cost model, measures every candidate on the GPU, and keeps a trace of each decision.</p></section>
     <section><h2>How it works</h2>
-      <ol class="steps" aria-label="Pipeline"><li><span>linalg</span></li><li><span>fuse-epilogue</span></li><li><span>tile (transform schedule)</span></li><li><span>bufferize</span></li><li><span>pad-workgroup-memory</span></li><li><span>gpu → nvvm → llvm</span></li><li><span>PTX</span></li><li><span>CUDA runner</span></li></ol>
-      <ul><li>Header-only C++20 core: a 3,610-config tile search space, a roofline cost model (arithmetic intensity, register caps, occupancy, wave quantization) and closed-loop search.</li><li>One bank-conflict model is shared by the tuner and the MLIR padding pass, so the compiler and the cost model agree on what conflict-free means.</li><li>Advisors (none, random, rules, knowledge graph, external LLM) propose configs; every suggestion is validated in C++ before it runs.</li><li>The CUDA runner loads PTX in-process through the Driver API, checks each candidate against an fp64 reference, and times it next to cuBLAS in the same run.</li><li>The first T4 run showed the cost model ranks near-optimal configs badly (Spearman ρ = −0.67). The tuner still got to 85.6% of cuBLAS because it keeps the measured best, which is the argument for closed-loop measurement.</li></ul>
+      <ol class="steps" aria-label="Pipeline"><li><span>linalg</span></li><li><span>fuse-epilogue</span></li><li><span>tile, fuse, vectorize (transform schedule)</span></li><li><span>bufferize in place</span></li><li><span>approximate-math</span></li><li><span>gpu → nvvm → llvm</span></li><li><span>PTX (sm_75)</span></li></ol>
+      <ul><li>The MLIR passes build against LLVM 19 and lower linalg to PTX in six stages, about 0.2 s, with no CUDA toolkit. The kernel takes four pointers and keeps each thread&#x27;s 4×4 accumulator in registers.</li><li>Four custom passes: epilogue fusion, bank-conflict padding for shared memory, an arith-only tanh/fabs so the kernel needs no libdevice, and removal of the no-op copies bufferization leaves behind.</li><li>Tile sizes come from a transform schedule the tuner renders per config, so trying a new config needs no C++ rebuild.</li><li>Header-only C++20 tuner: a 3,610-config search space, a roofline cost model (arithmetic intensity, register caps, occupancy, wave quantization) and closed-loop search. Advisors (none, random, rules, knowledge graph, LLM) are validated in C++ before anything runs.</li><li>The first T4 run showed the cost model ranks near-optimal configs badly (Spearman ρ = −0.67). The tuner still reached 85.6% of cuBLAS because it keeps the measured best, which is the argument for closed-loop measurement.</li></ul>
     </section>
     <section><h2>Built with</h2><div class="pills"><span class="pill">C++20</span><span class="pill">MLIR / LLVM 19</span><span class="pill">TableGen</span><span class="pill">CUDA Driver API</span></div></section>
   </div>
   <aside class="sheet" aria-labelledby="results-title">
     <h2 id="results-title">Results</h2>
-    <div class="source"><span>Numbers come from</span><b>Measured on a Tesla T4</b></div>
-    <dl class="kv"><div><dt>Best config, 2048³ FP32</dt><dd>3,688.5 GFLOP/s</dd></div><div><dt>Untuned default</dt><dd>2,074.0 GFLOP/s</dd></div><div><dt>Gain from tuning</dt><dd>1.78×</dd></div><div><dt>Share of cuBLAS, same run</dt><dd>85.6%</dd></div><div><dt>Cost model vs measured rank</dt><dd>ρ = −0.67</dd></div><div><dt>Search space</dt><dd>3,610 configs</dd></div><div><dt>C++ unit tests</dt><dd>16, clean under ASan + UBSan</dd></div></dl>
-    <p class="caveat"><b>Before you quote these:</b> One 40-trial tuning run on a free Colab T4, FP32 only. The MLIR passes and FileCheck tests are written for LLVM 19 but not yet built, and the advisor ablation has not been run on hardware.</p>
+    <div class="source"><span>Numbers come from</span><b>Measured on a Tesla T4; MLIR path checked on CPU</b></div>
+    <dl class="kv"><div><dt>Tuned nvcc kernel, 2048³ FP32</dt><dd>3,688.5 GFLOP/s</dd></div><div><dt>Share of cuBLAS, same run</dt><dd>85.6%</dd></div><div><dt>Gain from tuning</dt><dd>1.78×</dd></div><div><dt>Cost model vs measured rank</dt><dd>ρ = −0.67</dd></div><div><dt>MLIR lowering vs fp64 reference (CPU)</dt><dd>max error ~1e-6</dd></div><div><dt>FileCheck cases</dt><dd>7, all pass</dd></div><div><dt>C++ unit tests</dt><dd>16, clean under ASan + UBSan</dd></div></dl>
+    <p class="caveat"><b>Before you quote these:</b> The 85.6% comes from one 40-trial tuning run of the nvcc-built kernel on a Colab T4. The MLIR-generated PTX is checked numerically on the CPU but hasn&#x27;t been run on a GPU yet, and it doesn&#x27;t stage tiles in shared memory, so expect it to be well below the tuned kernel. The advisor ablation hasn&#x27;t been run on hardware.</p>
     <div class="actions"><a class="btn primary" href="https://github.com/RakshitRPathak/ptxforge" target="_blank" rel="noopener">Code</a></div>
   </aside>
 </div>

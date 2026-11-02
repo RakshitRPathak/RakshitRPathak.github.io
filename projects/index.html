@@ -39,8 +39,8 @@
   <div class="shead"><div class="tabs" data-tabs role="group" aria-label="Filter projects" hidden><button type="button" data-filter="all" aria-pressed="true">All</button><button type="button" data-filter="systems" aria-pressed="false">Systems</button><button type="button" data-filter="ml" aria-pressed="false">ML</button><button type="button" data-filter="backend" aria-pressed="false">Software</button></div><span class="count" data-count aria-live="polite">17 projects</span></div>
   <div class="grid2"><a class="pcard" href="/projects/ptxforge/" data-track="systems">
       <p class="kicker">Systems and compilers</p><h3>PTXForge</h3>
-      <p>A closed-loop autotuner for a fused GEMM + bias + GELU CUDA kernel, with custom MLIR passes for epilogue fusion and shared-memory padding. On a T4 it reaches 85.6% of cuBLAS.</p>
-      <div class="meta"><span class="pill prog">In progress</span><span class="pill">Measured on a Tesla T4</span></div>
+      <p>An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner that reaches 85.6% of cuBLAS on a T4 with the nvcc-built kernel.</p>
+      <div class="meta"><span class="pill prog">In progress</span><span class="pill">Measured on a Tesla T4; MLIR path checked on CPU</span></div>
     </a><a class="pcard" href="/projects/minic/" data-track="systems">
       <p class="kicker">Systems and compilers</p><h3>minic</h3>
       <p>A dependency-free compiler for a small imperative language, going through the same stages as a production compiler.</p>
