@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PDF-to-Audio Generator · Rakshit Ratan Pathak</title>
+<meta name="description" content="PDF-to-Audio Generator: Upload a text-based PDF and get a narration back, with interchangeable speech backends.">
+<link rel="canonical" href="https://rakshitrpathak.github.io/projects/pdf-audio/">
+<meta property="og:title" content="PDF-to-Audio Generator · Rakshit Ratan Pathak">
+<meta property="og:description" content="PDF-to-Audio Generator: Upload a text-based PDF and get a narration back, with interchangeable speech backends.">
+<meta property="og:url" content="https://rakshitrpathak.github.io/projects/pdf-audio/">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1116" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315171c'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="top-in">
+    <a class="name" href="/"><span class="mark" aria-hidden="true"><svg viewBox="0 0 14 14"><rect x="1" y="8" width="3" height="5" rx="1"/><rect x="5.5" y="5" width="3" height="8" rx="1"/><rect x="10" y="1" width="3" height="12" rx="1"/></svg></span><span class="full">Rakshit Ratan Pathak</span><span class="short">Rakshit Pathak</span></a>
+    <nav class="nav" aria-label="Main"><a href="/projects/" aria-current=page>Projects</a><a href="/research/">Research</a><a href="/experience/">Experience</a><a href="/resumes/">Résumés</a><a href="/contact/">Contact</a></nav>
+    <div class="tools">
+      <a class="btn sm" href="https://www.linkedin.com/in/rakshit-ratan-pathak-20a32228a" target="_blank" rel="noopener">LinkedIn<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+      <button class="icon theme" type="button" aria-label="Switch theme"><svg class="i sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg></button>
+      <button class="icon menu" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open menu"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
+    </div>
+  </div>
+  <nav class="mnav" id="mnav" aria-label="Main" hidden><a href="/">Home</a><a href="/projects/" aria-current=page>Projects</a><a href="/research/">Research</a><a href="/experience/">Experience</a><a href="/resumes/">Résumés</a><a href="/contact/">Contact</a></nav>
+</header>
+<main id="main" tabindex="-1">
+<div class="stack" style="gap:28px">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/projects/">Projects</a><span aria-hidden="true">/</span><a href="/projects/#backend">Software engineering</a></nav>
+  <header class="dhead">
+    <h1>PDF-to-Audio Generator</h1>
+    <p class="lede">Upload a text-based PDF and get a narration back, with interchangeable speech backends.</p>
+    <div class="pills"><span class="pill ok">Complete</span></div>
+  </header>
+</div>
+<div class="dgrid">
+  <div class="story">
+    <section><h2>The problem</h2><p>Long documents hit speech-API limits and flaky networks; the service has to chunk, retry and report progress.</p></section>
+    <section><h2>How it works</h2>
+      <ol class="steps" aria-label="Pipeline"><li><span>upload</span></li><li><span>PDF text extraction</span></li><li><span>chunking</span></li><li><span>TTS backend (retry + backoff)</span></li><li><span>background job</span></li><li><span>audio</span></li></ol>
+      <ul><li>Cleans PDF text for speech: re-flows wrapped lines, re-joins hyphenated words, drops page numbers, running headers and citation markers.</li><li>Packs whole sentences into chunks under Google&#x27;s 5,000-byte limit, counted in bytes so Hindi and Tamil text doesn&#x27;t overflow.</li><li>Google Cloud Text-to-Speech, gTTS or offline eSpeak behind one interface; background jobs with progress, cancel, cache and expiry.</li></ul>
+    </section>
+    <section><h2>Built with</h2><div class="pills"><span class="pill">Python</span><span class="pill">Flask</span><span class="pill">Google Cloud TTS</span></div></section>
+  </div>
+  <aside class="sheet" aria-labelledby="results-title">
+    <h2 id="results-title">Results</h2>
+    <div class="source"><span>Numbers come from</span><b>Offline tests</b></div>
+    <dl class="kv"><div><dt>Tests</dt><dd>34, all offline</dd></div></dl>
+    
+    <div class="actions"><a class="btn primary" href="https://github.com/RakshitRPathak/Pdf-Audio-converter" target="_blank" rel="noopener">Code</a></div>
+  </aside>
+</div>
+<section class="stack"><div class="shead"><h2>More in software engineering</h2><a href="/projects/#backend">See all</a></div>
+  <div class="grid3"><a class="pcard" href="/projects/agentic-bug-repair/" data-track="backend">
+      <h3>agentic-bug-repair</h3>
+      <p>Takes a Java repository with failing tests and tries to produce a verified fix as a pull request, in the style of SWE-agent systems but small enough to read in a sitting.</p>
+      <div class="meta"><span class="pill ok">Complete</span><span class="pill">Seeded-bug benchmark</span></div>
+    </a><a class="pcard" href="/projects/mini-kv-store/" data-track="backend">
+      <h3>mini-kv-store</h3>
+      <p>A small storage engine built the way production LSM stores are, and tested by crashing it on purpose.</p>
+      <div class="meta"><span class="pill ok">Complete</span><span class="pill">Fault-injection tests</span></div>
+    </a><a class="pcard" href="/projects/system-design-primitives/" data-track="backend">
+      <h3>system-design-primitives</h3>
+      <p>The building blocks that system-design interviews ask about, implemented and tested instead of drawn on a whiteboard.</p>
+      <div class="meta"><span class="pill ok">Complete</span><span class="pill">Unit tests</span></div>
+    </a></div></section>
+<nav class="pager" aria-label="Previous and next project"><a href="/projects/inventory/"><span>Previous</span><b>Inventory Management System</b></a><a href="/projects/ptxforge/"><span>Next</span><b>PTXForge</b></a></nav>
+</main>
+<footer class="foot">
+  <div class="foot-in">
+    <span>Rakshit Ratan Pathak, VIT Vellore, class of 2027</span>
+    <nav aria-label="Elsewhere"><a href="mailto:rrpathak.0007@gmail.com">rrpathak.0007@gmail.com</a><a href="https://www.linkedin.com/in/rakshit-ratan-pathak-20a32228a" target="_blank" rel="noopener">LinkedIn</a><a href="https://github.com/RakshitRPathak" target="_blank" rel="noopener">GitHub</a><a href="/resumes/">Résumés</a></nav>
+  </div>
+</footer>
+<script src="/assets/site.js" defer></script>
+</body>
+</html>

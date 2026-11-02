@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Risk-Constrained Emergency Control · Rakshit Ratan Pathak</title>
+<meta name="description" content="Risk-Constrained Emergency Control: Predicts whether a candidate micro-intervention will be protective, harmful, ineffective or inconsistent before it is physically tested.">
+<link rel="canonical" href="https://rakshitrpathak.github.io/projects/emergency-control/">
+<meta property="og:title" content="Risk-Constrained Emergency Control · Rakshit Ratan Pathak">
+<meta property="og:description" content="Risk-Constrained Emergency Control: Predicts whether a candidate micro-intervention will be protective, harmful, ineffective or inconsistent before it is physically tested.">
+<meta property="og:url" content="https://rakshitrpathak.github.io/projects/emergency-control/">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1116" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315171c'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="top-in">
+    <a class="name" href="/"><span class="mark" aria-hidden="true"><svg viewBox="0 0 14 14"><rect x="1" y="8" width="3" height="5" rx="1"/><rect x="5.5" y="5" width="3" height="8" rx="1"/><rect x="10" y="1" width="3" height="12" rx="1"/></svg></span><span class="full">Rakshit Ratan Pathak</span><span class="short">Rakshit Pathak</span></a>
+    <nav class="nav" aria-label="Main"><a href="/projects/" aria-current=page>Projects</a><a href="/research/">Research</a><a href="/experience/">Experience</a><a href="/resumes/">Résumés</a><a href="/contact/">Contact</a></nav>
+    <div class="tools">
+      <a class="btn sm" href="https://www.linkedin.com/in/rakshit-ratan-pathak-20a32228a" target="_blank" rel="noopener">LinkedIn<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+      <button class="icon theme" type="button" aria-label="Switch theme"><svg class="i sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg></button>
+      <button class="icon menu" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open menu"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
+    </div>
+  </div>
+  <nav class="mnav" id="mnav" aria-label="Main" hidden><a href="/">Home</a><a href="/projects/" aria-current=page>Projects</a><a href="/research/">Research</a><a href="/experience/">Experience</a><a href="/resumes/">Résumés</a><a href="/contact/">Contact</a></nav>
+</header>
+<main id="main" tabindex="-1">
+<div class="stack" style="gap:28px">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/projects/">Projects</a><span aria-hidden="true">/</span><a href="/projects/#ml">ML systems and research</a></nav>
+  <header class="dhead">
+    <h1>Risk-Constrained Emergency Control</h1>
+    <p class="lede">Predicts whether a candidate micro-intervention will be protective, harmful, ineffective or inconsistent before it is physically tested.</p>
+    <div class="pills"><span class="pill ok">Complete</span><span class="pill">Patent: Published</span></div>
+  </header>
+</div>
+<div class="dgrid">
+  <div class="story">
+    <section><h2>The problem</h2><p>In emergency control, trying an action to see what happens can make things worse. This screener is the first safety layer before escalation.</p></section>
+    <section><h2>How it works</h2>
+      <ol class="steps" aria-label="Pipeline"><li><span>candidate action</span></li><li><span>protected-zone constraint</span></li><li><span>classifier</span></li><li><span>safety gate</span></li><li><span>allow / escalate</span></li></ol>
+      <ul><li>A four-zone, source-informed generator produces 5,000 labelled records.</li><li>Three classifiers are compared with a safety-first selection rule; a gate tuned on out-of-fold training predictions blocks uncertain actions.</li><li>A hard protected-zone constraint is applied before the model is ever consulted, and tests pin it at its exact thresholds.</li><li>Deployed as a live web console on Vercel; built as a course project on the published patent.</li></ul>
+    </section>
+    <section><h2>Built with</h2><div class="pills"><span class="pill">Python</span><span class="pill">scikit-learn</span><span class="pill">Vercel</span></div></section>
+  </div>
+  <aside class="sheet" aria-labelledby="results-title">
+    <h2 id="results-title">Results</h2>
+    <div class="source"><span>Numbers come from</span><b>Simulated plant</b></div>
+    <dl class="kv"><div><dt>Records</dt><dd>5,000 (80:20 stratified split)</dd></div><div><dt>Harmful actions caught</dt><dd>92.9%</dd></div><div><dt>Unsafe passed as safe, with the gate</dt><dd>0.8%</dd></div><div><dt>Same, without the gate</dt><dd>2.0%</dd></div><div><dt>Tests on the safety logic</dt><dd>31</dd></div></dl>
+    
+    <div class="actions"><a class="btn primary" href="https://tarp-ml.vercel.app/" target="_blank" rel="noopener">Live demo</a><a class="btn on-panel" href="https://github.com/RakshitRPathak/Risk-Constrained-Emergency-Control-System" target="_blank" rel="noopener">Code</a></div>
+  </aside>
+</div>
+<section class="stack"><div class="shead"><h2>More in ml systems and research</h2><a href="/projects/#ml">See all</a></div>
+  <div class="grid3"><a class="pcard" href="/projects/opinion-lineage/" data-track="ml">
+      <h3>Opinion Lineage System</h3>
+      <p>Estimates organic sentiment from streams full of reposts, paraphrases, coordinated copies and AI rewrites, and corrects published estimates when provenance changes.</p>
+      <div class="meta"><span class="pill ok">Complete</span><span class="pill">Real tweets</span></div>
+    </a><a class="pcard" href="/projects/railconflict-pscl/" data-track="ml">
+      <h3>RailConflict-PSCL</h3>
+      <p>A collision-risk classifier with two safety layers, tested on a railway graph digital twin with degraded sensor data.</p>
+      <div class="meta"><span class="pill ok">Complete</span><span class="pill">Simulated network</span></div>
+    </a><a class="pcard" href="/projects/trustdecay-tkg/" data-track="ml">
+      <h3>TrustDecay-TKG</h3>
+      <p>Forecasts how far each IT asset&#x27;s trust has decayed since its last audit, then turns forecasts into an audit queue with a guarantee on missed assets.</p>
+      <div class="meta"><span class="pill ok">Complete</span><span class="pill">Simulated enterprise</span></div>
+    </a></div></section>
+<nav class="pager" aria-label="Previous and next project"><a href="/projects/vericloud/"><span>Previous</span><b>VeriCloud</b></a><a href="/projects/wildfire/"><span>Next</span><b>Wildfire Prediction and Response</b></a></nav>
+</main>
+<footer class="foot">
+  <div class="foot-in">
+    <span>Rakshit Ratan Pathak, VIT Vellore, class of 2027</span>
+    <nav aria-label="Elsewhere"><a href="mailto:rrpathak.0007@gmail.com">rrpathak.0007@gmail.com</a><a href="https://www.linkedin.com/in/rakshit-ratan-pathak-20a32228a" target="_blank" rel="noopener">LinkedIn</a><a href="https://github.com/RakshitRPathak" target="_blank" rel="noopener">GitHub</a><a href="/resumes/">Résumés</a></nav>
+  </div>
+</footer>
+<script src="/assets/site.js" defer></script>
+</body>
+</html>

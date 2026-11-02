@@ -1,0 +1,1117 @@
+{
+  "person": {
+    "name": "Rakshit Ratan Pathak",
+    "headline": "I build compilers, GPU kernels, ML systems and backends, and I show how I measured them.",
+    "facts": "Final-year B.Tech in Computer Science and Business Systems at VIT Vellore, CGPA 8.3. Six patent applications, five published. Three manuscripts submitted to IEEE Access.",
+    "availability": "Open to internships from January 2027",
+    "availability_long": "Open to six-month internships from January 2027 in software engineering, ML engineering and compilers.",
+    "email": "rrpathak.0007@gmail.com",
+    "github": "https://github.com/RakshitRPathak",
+    "linkedin": "https://www.linkedin.com/in/rakshit-ratan-pathak-20a32228a",
+    "site": "https://rakshitrpathak.github.io"
+  },
+  "tracks": {
+    "systems": {
+      "name": "Systems and compilers",
+      "short": "Systems",
+      "blurb": "Compilers, GPU kernels and the tooling that tunes them. C++, CUDA, MLIR."
+    },
+    "ml": {
+      "name": "ML systems and research",
+      "short": "ML",
+      "blurb": "Models judged by multi-seed results, with code and data released. Python, conformal prediction, RAG."
+    },
+    "backend": {
+      "name": "Software engineering",
+      "short": "Software",
+      "blurb": "Agents, storage engines and services where correctness under failure is the point. Java, TypeScript, Python."
+    }
+  },
+  "projects": [
+    {
+      "slug": "ptxforge",
+      "track": "systems",
+      "title": "PTXForge",
+      "sub": "GPU kernel compiler and autotuner in C++20",
+      "status": "prog",
+      "data": "Measured on a Tesla T4",
+      "stack": [
+        "C++20",
+        "MLIR / LLVM 19",
+        "TableGen",
+        "CUDA Driver API"
+      ],
+      "links": [
+        [
+          "Code",
+          "https://github.com/RakshitRPathak/ptxforge"
+        ]
+      ],
+      "lede": "A closed-loop autotuner for a fused GEMM + bias + GELU CUDA kernel, with custom MLIR passes for epilogue fusion and shared-memory padding. On a T4 it reaches 85.6% of cuBLAS.",
+      "problem": "Choosing tile sizes and shared-memory layout for a GPU kernel by hand is slow, and a wrong guess can cost several times in throughput. PTXForge searches the configuration space with a cost model, measures every candidate on the GPU, and keeps a trace of each decision.",
+      "pipe": [
+        "linalg",
+        "fuse-epilogue",
+        "tile (transform schedule)",
+        "bufferize",
+        "pad-workgroup-memory",
+        "gpu → nvvm → llvm",
+        "PTX",
+        "CUDA runner"
+      ],
+      "how": [
+        "Header-only C++20 core: a 3,610-config tile search space, a roofline cost model (arithmetic intensity, register caps, occupancy, wave quantization) and closed-loop search.",
+        "One bank-conflict model is shared by the tuner and the MLIR padding pass, so the compiler and the cost model agree on what conflict-free means.",
+        "Advisors (none, random, rules, knowledge graph, external LLM) propose configs; every suggestion is validated in C++ before it runs.",
+        "The CUDA runner loads PTX in-process through the Driver API, checks each candidate against an fp64 reference, and times it next to cuBLAS in the same run.",
+        "The first T4 run showed the cost model ranks near-optimal configs badly (Spearman ρ = −0.67). The tuner still got to 85.6% of cuBLAS because it keeps the measured best, which is the argument for closed-loop measurement."
+      ],
+      "results": [
+        [
+          "Best config, 2048³ FP32",
+          "3,688.5 GFLOP/s"
+        ],
+        [
+          "Untuned default",
+          "2,074.0 GFLOP/s"
+        ],
+        [
+          "Gain from tuning",
+          "1.78×"
+        ],
+        [
+          "Share of cuBLAS, same run",
+          "85.6%"
+        ],
+        [
+          "Cost model vs measured rank",
+          "ρ = −0.67"
+        ],
+        [
+          "Search space",
+          "3,610 configs"
+        ],
+        [
+          "C++ unit tests",
+          "16, clean under ASan + UBSan"
+        ]
+      ],
+      "caveat": "One 40-trial tuning run on a free Colab T4, FP32 only. The MLIR passes and FileCheck tests are written for LLVM 19 but not yet built, and the advisor ablation has not been run on hardware."
+    },
+    {
+      "slug": "minic",
+      "track": "systems",
+      "title": "minic",
+      "sub": "A compiler in C++17",
+      "status": "done",
+      "data": "Deterministic tests",
+      "stack": [
+        "C++17",
+        "CMake",
+        "ASan / UBSan"
+      ],
+      "links": [
+        [
+          "Code",
+          "https://github.com/RakshitRPathak/minic"
+        ]
+      ],
+      "lede": "A dependency-free compiler for a small imperative language, going through the same stages as a production compiler.",
+      "problem": "Built to understand every stage between source text and execution, including the parts textbooks skip: error messages with line numbers, forward jumps, and keeping optimizations from changing behaviour.",
+      "pipe": [
+        "source",
+        "lexer",
+        "parser (AST)",
+        "semantic analysis",
+        "optimizer",
+        "bytecode + backpatching",
+        "stack VM"
+      ],
+      "how": [
+        "Hand-written lexer with one character of lookahead; recursive-descent parser building an AST.",
+        "Constant folding and dead-branch and dead-loop elimination. Folding shares its arithmetic code with the VM, so both agree on overflow and division.",
+        "Forward jumps are resolved by backpatching, the same problem linkers solve with relocations.",
+        "Semantic analysis runs before optimization, so removing dead code can never change which programs compile."
+      ],
+      "results": [
+        [
+          "Size",
+          "1,200+ lines, no dependencies"
+        ],
+        [
+          "Automated tests",
+          "43 (12 check exact error messages)"
+        ],
+        [
+          "Optimized vs unoptimized output",
+          "identical on all 14 test programs"
+        ],
+        [
+          "Sanitizers",
+          "clean under ASan + UBSan"
+        ]
+      ],
+      "caveat": ""
+    },
+    {
+      "slug": "cuda-gpu-bench",
+      "track": "systems",
+      "title": "cuda-gpu-bench",
+      "sub": "CUDA kernels, benchmarked and read down to the PTX",
+      "status": "done",
+      "data": "Measured on a Tesla T4",
+      "stack": [
+        "CUDA",
+        "C++",
+        "PTX",
+        "ThreadSanitizer"
+      ],
+      "links": [
+        [
+          "Code",
+          "https://github.com/RakshitRPathak/cuda-gpu-bench"
+        ]
+      ],
+      "lede": "Hand-written CUDA kernels for vector add, matrix multiply and sum reduction, benchmarked on a T4 and explained instruction by instruction.",
+      "problem": "Each kernel answers one question a GPU performance engineer asks: how much does shared-memory tiling help, and what does synchronization cost (atomics vs shared-memory tree vs warp shuffles)?",
+      "pipe": [
+        "kernel source",
+        "CPU emulator tests",
+        "nvcc (sm_75)",
+        "CPU reference check",
+        "CUDA-event timing",
+        "PTX instruction counts"
+      ],
+      "how": [
+        "Naive and shared-memory tiled matrix multiply, plus three reductions: contended atomics, shared-memory tree and warp shuffle.",
+        "Built with nvcc for sm_75 and run on a Tesla T4; every kernel passes its CPU-reference check before it is timed.",
+        "Tiling gained 1.5×, not the 16× the load count suggests: the naive kernel's loads already go through the read-only cache. Register tiling is the next step.",
+        "A CPU emulator of threads, blocks, shared memory, barriers, atomics and warp shuffles runs the kernel logic on any machine; deliberately broken kernels are all caught."
+      ],
+      "results": [
+        [
+          "vec_add bandwidth",
+          "257 GB/s (80% of peak)"
+        ],
+        [
+          "Matmul at N = 2048, tiled vs naive",
+          "683 vs 447 GFLOP/s"
+        ],
+        [
+          "Tiled matmul vs cuBLAS",
+          "14.6%"
+        ],
+        [
+          "Reduction, per-thread atomics vs shuffle",
+          "170 vs 234 GB/s"
+        ],
+        [
+          "CPU emulator checks",
+          "33, all pass"
+        ]
+      ],
+      "caveat": "Median of 3 runs on one Colab T4. The hand-written matmul is a teaching kernel; it sits at about 15% of cuBLAS."
+    },
+    {
+      "slug": "opinion-lineage",
+      "track": "ml",
+      "title": "Opinion Lineage System",
+      "sub": "Self-correcting sentiment and lineage-aware RAG",
+      "status": "done",
+      "data": "Real tweets",
+      "stack": [
+        "Python",
+        "scikit-learn",
+        "RAG"
+      ],
+      "links": [
+        [
+          "Paper code",
+          "https://github.com/RakshitRPathak/OpinionLineage-OLS"
+        ],
+        [
+          "RAG system",
+          "https://github.com/RakshitRPathak/Opinion-lineage-system"
+        ]
+      ],
+      "lede": "Estimates organic sentiment from streams full of reposts, paraphrases, coordinated copies and AI rewrites, and corrects published estimates when provenance changes.",
+      "problem": "Counting every post equally lets amplification pass as opinion. When a source is later found to be a bot network, the published sentiment is already wrong.",
+      "pipe": [
+        "posts",
+        "lineage edge model",
+        "opinion-lineage graph",
+        "independence weights",
+        "organic sentiment",
+        "selective rollback"
+      ],
+      "how": [
+        "A calibrated gradient-boosted edge model labels each post as a repost, quote, paraphrase, AI derivative or coordinated copy of an earlier one.",
+        "Weights down-rank dependent and synthetic posts so the aggregate reflects independent opinion.",
+        "Selective Dependency Rollback turns a provenance revision into an exact update over the affected lineage only, with no model re-runs.",
+        "A RAG layer gives each lineage one evidence slot, says how much volume is amplification, and corrects answers in place when a source is retracted."
+      ],
+      "results": [
+        [
+          "Provenance error, OLS (40% contamination)",
+          "0.0030"
+        ],
+        [
+          "Best heuristic pipeline",
+          "0.0075"
+        ],
+        [
+          "Raw aggregation",
+          "0.0899"
+        ],
+        [
+          "RAG answer error, lineage-aware vs naive",
+          "0.061 vs 0.098"
+        ]
+      ],
+      "caveat": "",
+      "patent": "Published, application 202641115708"
+    },
+    {
+      "slug": "railconflict-pscl",
+      "track": "ml",
+      "title": "RailConflict-PSCL",
+      "sub": "Railway collision-risk assessment",
+      "status": "done",
+      "data": "Simulated network",
+      "stack": [
+        "Python",
+        "conformal prediction",
+        "gradient boosting"
+      ],
+      "links": [
+        [
+          "Code and data",
+          "https://github.com/RakshitRPathak/RailConflict-PSCL"
+        ]
+      ],
+      "lede": "A collision-risk classifier with two safety layers, tested on a railway graph digital twin with degraded sensor data.",
+      "problem": "A classifier that is accurate on average can still miss the rare Critical encounters that matter most. The goal was to cut those misses without flooding drivers with false emergencies.",
+      "pipe": [
+        "network digital twin",
+        "degraded observations",
+        "classifier",
+        "per-class conformal escalation",
+        "braking-physics shield",
+        "intervention tier"
+      ],
+      "how": [
+        "Labels are the minimum physical intervention that avoids each conflict, computed from hidden true state.",
+        "Mondrian conformal prediction gives per-severity-class bounds on under-classification; the decision is the most severe tier in the set.",
+        "An ETCS-style braking shield overrides the model when physics says a stop is needed."
+      ],
+      "results": [
+        [
+          "Missed-Critical, gradient boosting",
+          "9.9%"
+        ],
+        [
+          "Missed-Critical, braking-rule check",
+          "22.9%"
+        ],
+        [
+          "Missed-Critical, PSCL",
+          "0.7%"
+        ],
+        [
+          "False-emergency rate, PSCL",
+          "9.0%"
+        ],
+        [
+          "Evaluation",
+          "10 seeds"
+        ]
+      ],
+      "caveat": "Results come from a simulated railway network, not field data.",
+      "patent": "Filed (railway collision avoidance)"
+    },
+    {
+      "slug": "trustdecay-tkg",
+      "track": "ml",
+      "title": "TrustDecay-TKG",
+      "sub": "IT-asset audit prioritization",
+      "status": "done",
+      "data": "Simulated enterprise",
+      "stack": [
+        "Python",
+        "temporal knowledge graphs",
+        "conformal prediction"
+      ],
+      "links": [
+        [
+          "Code and data",
+          "https://github.com/RakshitRPathak/TrustDecay-TKG"
+        ],
+        [
+          "Dashboard prototype",
+          "https://github.com/RakshitRPathak/Trust-Decay-trust-model"
+        ]
+      ],
+      "lede": "Forecasts how far each IT asset's trust has decayed since its last audit, then turns forecasts into an audit queue with a guarantee on missed assets.",
+      "problem": "Audit teams cover a fraction of assets each cycle. Rotation and severity-score rules spend that budget on the wrong assets.",
+      "pipe": [
+        "audit + security events",
+        "temporal knowledge graph",
+        "features",
+        "trust-decay forecast",
+        "adaptive conformal selection",
+        "audit queue"
+      ],
+      "how": [
+        "Events become time-stamped graph quadruples; features summarise each asset's recent history and neighbourhood.",
+        "Delayed-feedback adaptive conformal selection handles audit outcomes that arrive weeks late and holds missed severe assets near a target rate.",
+        "Ablations showed the gain comes from temporal features; relational graph features added little in this setting."
+      ],
+      "results": [
+        [
+          "Precision at 10% audit budget",
+          "54%"
+        ],
+        [
+          "Rotation audits",
+          "16%"
+        ],
+        [
+          "Highest CVSS first",
+          "14%"
+        ],
+        [
+          "Prototype dashboard tests",
+          "68"
+        ]
+      ],
+      "caveat": "Everything runs on a simulated enterprise; results describe this simulator, not real organisations.",
+      "patent": "Published, application 202641108535"
+    },
+    {
+      "slug": "vericloud",
+      "track": "ml",
+      "title": "VeriCloud",
+      "sub": "News claim verification",
+      "status": "done",
+      "data": "Simulated news world",
+      "stack": [
+        "Python",
+        "scikit-learn",
+        "BM25 / TF-IDF"
+      ],
+      "links": [
+        [
+          "Code",
+          "https://github.com/RakshitRPathak/VeriCloud"
+        ]
+      ],
+      "lede": "Verifies claims against retrieved evidence while learning which sources to trust, and abstains when evidence is thin.",
+      "problem": "Coordinated sybil sites can outvote real sources. Verification has to stay accurate when part of the evidence is planted.",
+      "pipe": [
+        "claim",
+        "BM25 + TF-IDF retrieval",
+        "stance model",
+        "source reliability",
+        "calibrated verdict",
+        "abstain if thin"
+      ],
+      "how": [
+        "Hybrid retrieval, a gradient-boosted stance model and Bayesian source-reliability learning are fused into a calibrated verdict.",
+        "Monte-Carlo sampling of reliabilities gives a credible interval and a verdict-flip probability.",
+        "Claims are split by time, and significance is tested with paired Wilcoxon tests across seeds."
+      ],
+      "results": [
+        [
+          "Macro-F1 under attack, VeriCloud",
+          "0.790"
+        ],
+        [
+          "Best baseline under attack",
+          "0.700"
+        ],
+        [
+          "Significance",
+          "p = 0.008, 8 of 8 seeds"
+        ],
+        [
+          "Clean data",
+          "ties the baselines (0.801)"
+        ],
+        [
+          "Tests",
+          "23"
+        ]
+      ],
+      "caveat": "All numbers come from a synthetic news world with known attackers. They show how the mechanisms behave, not real-world accuracy."
+    },
+    {
+      "slug": "emergency-control",
+      "track": "ml",
+      "title": "Risk-Constrained Emergency Control",
+      "sub": "Safety-gated intervention screening",
+      "status": "done",
+      "data": "Simulated plant",
+      "stack": [
+        "Python",
+        "scikit-learn",
+        "Vercel"
+      ],
+      "links": [
+        [
+          "Live demo",
+          "https://tarp-ml.vercel.app/"
+        ],
+        [
+          "Code",
+          "https://github.com/RakshitRPathak/Risk-Constrained-Emergency-Control-System"
+        ]
+      ],
+      "lede": "Predicts whether a candidate micro-intervention will be protective, harmful, ineffective or inconsistent before it is physically tested.",
+      "problem": "In emergency control, trying an action to see what happens can make things worse. This screener is the first safety layer before escalation.",
+      "pipe": [
+        "candidate action",
+        "protected-zone constraint",
+        "classifier",
+        "safety gate",
+        "allow / escalate"
+      ],
+      "how": [
+        "A four-zone, source-informed generator produces 5,000 labelled records.",
+        "Three classifiers are compared with a safety-first selection rule; a gate tuned on out-of-fold training predictions blocks uncertain actions.",
+        "A hard protected-zone constraint is applied before the model is ever consulted, and tests pin it at its exact thresholds.",
+        "Deployed as a live web console on Vercel; built as a course project on the published patent."
+      ],
+      "results": [
+        [
+          "Records",
+          "5,000 (80:20 stratified split)"
+        ],
+        [
+          "Harmful actions caught",
+          "92.9%"
+        ],
+        [
+          "Unsafe passed as safe, with the gate",
+          "0.8%"
+        ],
+        [
+          "Same, without the gate",
+          "2.0%"
+        ],
+        [
+          "Tests on the safety logic",
+          "31"
+        ]
+      ],
+      "caveat": "",
+      "patent": "Published"
+    },
+    {
+      "slug": "wildfire",
+      "track": "ml",
+      "title": "Wildfire Prediction and Response",
+      "sub": "Risk prediction with resource orchestration",
+      "status": "done",
+      "data": "Real data (UCI)",
+      "stack": [
+        "Python",
+        "scikit-learn",
+        "Flask",
+        "SQLite"
+      ],
+      "links": [
+        [
+          "Code",
+          "https://github.com/RakshitRPathak/Wildfire-prediction-ml-model"
+        ]
+      ],
+      "lede": "An ensemble with confidence-gated risk levels, resource allocation under scarcity and champion/challenger retraining, behind a Flask dashboard.",
+      "problem": "Fire services need a risk level they can act on and a way to allocate scarce crews, not just a probability.",
+      "pipe": [
+        "weather + location",
+        "RF / GB / LR ensemble",
+        "confidence gate",
+        "risk level",
+        "resource allocation"
+      ],
+      "how": [
+        "Trains on the UCI Forest Fires data with the patent disclosure's own experimental setup, and reports cross-validated results instead of the disclosure's projected figures.",
+        "Monotonic constraints guarantee that hotter, drier or windier weather can never lower the predicted risk. Before them, a simulated heatwave scored lower than a cool wet day in 11 of 12 months.",
+        "Evacuation advisories are drafted automatically but wait for human sign-off, and simulated data can never retrain the model."
+      ],
+      "results": [
+        [
+          "Ensemble AUC, 5-fold × 10 repeats",
+          "0.595 ± 0.047"
+        ],
+        [
+          "Ensemble accuracy, same",
+          "0.572 vs 0.522 majority class"
+        ],
+        [
+          "Tests",
+          "71"
+        ]
+      ],
+      "caveat": "517 fires from one park. The models beat chance only modestly; the disclosure's 90–95% figures are projections for a future sensor deployment, not results.",
+      "patent": "Published, application 202641083188"
+    },
+    {
+      "slug": "mine-tremor",
+      "track": "ml",
+      "title": "Mine Tremor Detection",
+      "sub": "Edge-AI simulation study",
+      "status": "done",
+      "data": "Synthetic signals",
+      "stack": [
+        "Python",
+        "Random Forest",
+        "ESP32 (design)"
+      ],
+      "links": [
+        [
+          "Code",
+          "https://github.com/RakshitRPathak/Mining-tremor-detection-Patent-cum-grant"
+        ]
+      ],
+      "lede": "Simulation of distributed sensor nodes that classify vibration on the edge and confirm tremors across several nodes before alerting.",
+      "problem": "A single vibration sensor raises false alarms from machinery. Multi-node confirmation trades a little latency for far fewer false alerts.",
+      "pipe": [
+        "IMU sensing",
+        "preprocessing",
+        "features",
+        "Random Forest",
+        "hybrid validation",
+        "multi-node confirmation",
+        "alert"
+      ],
+      "how": [
+        "Each node (ESP32 + MPU6050 in the design) runs a Random Forest and checks its prediction against physical thresholds.",
+        "Streaming detection, latency and firmware fault injection are simulated in three stages.",
+        "Pitched to NRDC for grant funding."
+      ],
+      "results": [
+        [
+          "False-alarm rate, Random Forest",
+          "3.1%"
+        ],
+        [
+          "False-alarm rate, threshold only",
+          "37.2%"
+        ],
+        [
+          "Four-class accuracy",
+          "98.2%"
+        ],
+        [
+          "Median detection latency",
+          "1.08 s"
+        ],
+        [
+          "Tests",
+          "15"
+        ]
+      ],
+      "caveat": "Every result comes from synthetic signals, not hardware or field measurements.",
+      "patent": "Published, application 202641075003"
+    },
+    {
+      "slug": "agentic-bug-repair",
+      "track": "backend",
+      "title": "agentic-bug-repair",
+      "sub": "Autonomous bug-fixing agent in Java",
+      "status": "done",
+      "data": "Seeded-bug benchmark",
+      "stack": [
+        "Java 17",
+        "JDK compiler API",
+        "no dependencies"
+      ],
+      "links": [
+        [
+          "Code",
+          "https://github.com/RakshitRPathak/agentic-bug-repair"
+        ]
+      ],
+      "lede": "Takes a Java repository with failing tests and tries to produce a verified fix as a pull request, in the style of SWE-agent systems but small enough to read in a sitting.",
+      "problem": "A failing build usually needs a person to find the faulty method and try fixes by hand. The agent automates that loop and only publishes a diff that passes every test on a clean checkout.",
+      "pipe": [
+        "failing build (webhook or CLI)",
+        "code graph",
+        "fault localization",
+        "patch synthesis",
+        "sandboxed tests",
+        "critic (≤ 3 rounds)",
+        "clean-checkout re-check",
+        "pull request"
+      ],
+      "how": [
+        "The JDK compiler API parses the repository into a code graph with call, import, inheritance and field-write edges.",
+        "Fault localization combines test failures, the graph and text retrieval to rank suspect methods.",
+        "Candidate diffs run in an isolated sandbox; failures are fed back for up to three correction rounds.",
+        "A GitHub webhook can trigger runs, and a dashboard shows the state machine, the diff and telemetry. State-changing calls require same-origin JSON on a loopback host."
+      ],
+      "results": [
+        [
+          "Seeded bugs fixed, offline synthesizer",
+          "11 of 17"
+        ],
+        [
+          "Single-edit bugs fixed",
+          "11 of 12"
+        ],
+        [
+          "Bugs needing new code fixed",
+          "0 of 5"
+        ],
+        [
+          "Bug in top 3 suspects, graph vs text",
+          "94% vs 88%"
+        ],
+        [
+          "Bug ranked first, graph vs text",
+          "47% vs 59%"
+        ],
+        [
+          "Size and tests",
+          "~5,700 lines, 147 tests"
+        ]
+      ],
+      "caveat": "With 17 bugs, the localization differences are not statistically significant. The model-backed repair path has only been tested against a stub API, the Docker sandbox has not been run, and no real GitHub pull request has been opened. These numbers are not comparable to SWE-bench scores."
+    },
+    {
+      "slug": "mini-kv-store",
+      "track": "backend",
+      "title": "mini-kv-store",
+      "sub": "Crash-safe LSM-tree key-value store",
+      "status": "done",
+      "data": "Fault-injection tests",
+      "stack": [
+        "Java",
+        "JDK only"
+      ],
+      "links": [
+        [
+          "Code",
+          "https://github.com/RakshitRPathak/mini-kv-store"
+        ]
+      ],
+      "lede": "A small storage engine built the way production LSM stores are, and tested by crashing it on purpose.",
+      "problem": "A key-value store is only useful if a crash at any moment leaves it recoverable with no acknowledged write lost.",
+      "pipe": [
+        "put",
+        "write-ahead log (checksummed)",
+        "memtable",
+        "flush to SSTable",
+        "k-way merge compaction",
+        "atomic manifest"
+      ],
+      "how": [
+        "The write-ahead log carries checksums and truncates a torn tail on recovery.",
+        "SSTables have sparse indexes and Bloom filters; compaction is a k-way merge, and the manifest is swapped atomically.",
+        "Tests inject a crash at every flush and compaction step and check that recovery is correct."
+      ],
+      "results": [
+        [
+          "Tests",
+          "39"
+        ],
+        [
+          "Crash injection",
+          "at every flush and compaction step"
+        ]
+      ],
+      "caveat": ""
+    },
+    {
+      "slug": "system-design-primitives",
+      "track": "backend",
+      "title": "system-design-primitives",
+      "sub": "Caches, rate limiters and hashing",
+      "status": "done",
+      "data": "Unit tests",
+      "stack": [
+        "Java",
+        "JDK only"
+      ],
+      "links": [
+        [
+          "Code",
+          "https://github.com/RakshitRPathak/system-design-primitives"
+        ]
+      ],
+      "lede": "The building blocks that system-design interviews ask about, implemented and tested instead of drawn on a whiteboard.",
+      "problem": "Knowing that an LRU cache or a token bucket exists is different from getting its edge cases right.",
+      "pipe": [
+        "LRU / LFU cache",
+        "token bucket",
+        "sliding-window limiter",
+        "consistent hashing",
+        "Bloom filter"
+      ],
+      "how": [
+        "LRU and LFU caches, token-bucket and sliding-window rate limiters, consistent hashing and a Bloom filter.",
+        "Each is checked against a reference implementation and covered by tests for its edge cases."
+      ],
+      "results": [
+        [
+          "Tests",
+          "32"
+        ]
+      ],
+      "caveat": ""
+    },
+    {
+      "slug": "dsa-patterns",
+      "track": "backend",
+      "title": "dsa-patterns",
+      "sub": "Interview patterns, tested against brute force",
+      "status": "done",
+      "data": "Differential tests",
+      "stack": [
+        "Java",
+        "JDK only"
+      ],
+      "links": [
+        [
+          "Code",
+          "https://github.com/RakshitRPathak/dsa-patterns"
+        ]
+      ],
+      "lede": "Algorithm patterns organised by how to recognise the problem, each checked against a brute-force solution.",
+      "problem": "Pattern libraries often contain subtle bugs because they are only tested on a few hand-picked examples.",
+      "pipe": [
+        "recognise the pattern",
+        "optimised solution",
+        "brute-force oracle",
+        "thousands of random inputs"
+      ],
+      "how": [
+        "13 classes of patterns, organised by the clue in the problem statement that points to them.",
+        "Every solution is compared with a brute force on thousands of random inputs.",
+        "Planted bugs were used to check that the tests have teeth: 9 of 11 were caught, and the other 2 behave identically to the original."
+      ],
+      "results": [
+        [
+          "Differential tests",
+          "52"
+        ],
+        [
+          "Planted bugs caught",
+          "9 of 11 (2 are behaviour-identical)"
+        ]
+      ],
+      "caveat": ""
+    },
+    {
+      "slug": "healthcare",
+      "track": "backend",
+      "title": "Healthcare Appointment Manager",
+      "sub": "Concurrency-safe booking backend",
+      "status": "done",
+      "data": "Integration tests",
+      "stack": [
+        "TypeScript",
+        "Node.js",
+        "PostgreSQL",
+        "Redis",
+        "BullMQ"
+      ],
+      "links": [
+        [
+          "Code",
+          "https://github.com/RakshitRPathak/Healthcare-Appointment-Follow-up-Manager"
+        ]
+      ],
+      "lede": "A REST backend for patients, doctors and admins where two people can never book the same slot and no notification is silently lost.",
+      "problem": "Booking systems fail at the edges: two requests for one slot, a doctor's leave added after bookings exist, an email provider that times out.",
+      "pipe": [
+        "REST API",
+        "role-based access",
+        "slot hold (5 min)",
+        "exclusion constraint",
+        "transactional outbox",
+        "worker + retries",
+        "dead-letter queue"
+      ],
+      "how": [
+        "PostgreSQL exclusion constraints and 5-minute slot holds prevent double-booking; a concurrent booking gets a clear conflict error.",
+        "Leave creation and booking take the same row lock, so they can't race.",
+        "A transactional outbox with retries and a dead-letter queue makes notifications reliable.",
+        "LLM visit summaries are schema-validated, can't invent a drug the doctor didn't prescribe, and fall back to a deterministic template when the model fails."
+      ],
+      "results": [
+        [
+          "Integration tests",
+          "51, against a real Postgres"
+        ]
+      ],
+      "caveat": "This repository holds the backend; the React portals are not included."
+    },
+    {
+      "slug": "inventory",
+      "track": "backend",
+      "title": "Inventory Management System",
+      "sub": "Secure REST API with an audit trail",
+      "status": "done",
+      "data": "Unit tests",
+      "stack": [
+        "Python",
+        "SQLite",
+        "REST"
+      ],
+      "links": [
+        [
+          "Code",
+          "https://github.com/RakshitRPathak/Inventory-Management-System"
+        ]
+      ],
+      "lede": "A small inventory service with real security controls and a tamper-evident audit log.",
+      "problem": "Stock records are only useful if you can prove nobody quietly edited them.",
+      "pipe": [
+        "login",
+        "signed token",
+        "role check",
+        "stock transaction",
+        "hash-chained audit log",
+        "verify"
+      ],
+      "how": [
+        "PBKDF2 password hashing, role-based access and signed tokens.",
+        "Every change is appended to a hash-chained audit log that can be verified end to end.",
+        "Sensor telemetry is reconciled against book stock; an optional retrieval layer answers questions with an injection-aware prompt."
+      ],
+      "results": [
+        [
+          "Tests",
+          "15 (edge cases, tampering, failure paths)"
+        ]
+      ],
+      "caveat": ""
+    },
+    {
+      "slug": "pdf-audio",
+      "track": "backend",
+      "title": "PDF-to-Audio Generator",
+      "sub": "Background narration jobs",
+      "status": "done",
+      "data": "Offline tests",
+      "stack": [
+        "Python",
+        "Flask",
+        "Google Cloud TTS"
+      ],
+      "links": [
+        [
+          "Code",
+          "https://github.com/RakshitRPathak/Pdf-Audio-converter"
+        ]
+      ],
+      "lede": "Upload a text-based PDF and get a narration back, with interchangeable speech backends.",
+      "problem": "Long documents hit speech-API limits and flaky networks; the service has to chunk, retry and report progress.",
+      "pipe": [
+        "upload",
+        "PDF text extraction",
+        "chunking",
+        "TTS backend (retry + backoff)",
+        "background job",
+        "audio"
+      ],
+      "how": [
+        "Cleans PDF text for speech: re-flows wrapped lines, re-joins hyphenated words, drops page numbers, running headers and citation markers.",
+        "Packs whole sentences into chunks under Google's 5,000-byte limit, counted in bytes so Hindi and Tamil text doesn't overflow.",
+        "Google Cloud Text-to-Speech, gTTS or offline eSpeak behind one interface; background jobs with progress, cancel, cache and expiry."
+      ],
+      "results": [
+        [
+          "Tests",
+          "34, all offline"
+        ]
+      ],
+      "caveat": ""
+    }
+  ],
+  "patents": [
+    {
+      "title": "Confidence-Weighted Opinion Lineage System for Self-Correcting Sentiment Aggregation",
+      "status": "Published",
+      "number": "202641115708",
+      "project": "opinion-lineage"
+    },
+    {
+      "title": "Predictive Trust Assessment and Audit Prioritization of Enterprise Information System Assets",
+      "status": "Published",
+      "number": "202641108535",
+      "project": "trustdecay-tkg"
+    },
+    {
+      "title": "Wildfire Prediction and Response System",
+      "status": "Published",
+      "number": "202641083188",
+      "project": "wildfire"
+    },
+    {
+      "title": "Hybrid Edge-AI Mine Safety and Tremor Detection Using Distributed IoT Sensor Nodes",
+      "status": "Published",
+      "number": "202641075003",
+      "project": "mine-tremor"
+    },
+    {
+      "title": "Risk-Constrained Emergency Control via Reversible Micro-Interventions",
+      "status": "Published",
+      "number": "",
+      "project": "emergency-control"
+    },
+    {
+      "title": "AI-Enabled Predictive Railway Collision Avoidance Using Train-Dynamics Modeling",
+      "status": "Filed",
+      "number": "",
+      "project": "railconflict-pscl"
+    }
+  ],
+  "papers": [
+    {
+      "title": "Physics-Shielded Conformal Learning for Network-Aware Railway Collision-Risk Assessment Under Degraded Observations",
+      "project": "railconflict-pscl"
+    },
+    {
+      "title": "Forecasting Information-System Trust Decay on Temporal Knowledge Graphs With Delayed-Feedback Conformal Audit Selection",
+      "project": "trustdecay-tkg"
+    },
+    {
+      "title": "Confidence-Weighted Opinion Lineage for Organic Sentiment Estimation Under Synthetic and Coordinated Amplification",
+      "project": "opinion-lineage"
+    }
+  ],
+  "ladder": [
+    {
+      "who": "Naive kernel",
+      "note": "cuda-gpu-bench",
+      "gf": 446.9,
+      "ref": 4661.5,
+      "slug": "cuda-gpu-bench",
+      "cls": "base"
+    },
+    {
+      "who": "Shared-memory tiled",
+      "note": "cuda-gpu-bench",
+      "gf": 682.8,
+      "ref": 4661.5,
+      "slug": "cuda-gpu-bench",
+      "cls": "base"
+    },
+    {
+      "who": "Fused kernel, untuned",
+      "note": "PTXForge",
+      "gf": 2074,
+      "ref": 4307.5,
+      "slug": "ptxforge",
+      "cls": "base"
+    },
+    {
+      "who": "Fused kernel, tuned",
+      "note": "PTXForge, 40 trials",
+      "gf": 3688.5,
+      "ref": 4307.5,
+      "slug": "ptxforge",
+      "cls": ""
+    },
+    {
+      "who": "cuBLAS SGEMM",
+      "note": "reference",
+      "gf": null,
+      "ref": null,
+      "slug": null,
+      "cls": "ref"
+    }
+  ],
+  "featured": [
+    {
+      "project": "ptxforge",
+      "value": "85.6%",
+      "label": "of cuBLAS on a Tesla T4, after tuning"
+    },
+    {
+      "project": "agentic-bug-repair",
+      "value": "11 of 17",
+      "label": "seeded bugs fixed and verified"
+    },
+    {
+      "project": "railconflict-pscl",
+      "value": "0.7%",
+      "label": "missed-Critical rate, down from 9.9%"
+    },
+    {
+      "project": "mini-kv-store",
+      "value": "39 tests",
+      "label": "with a crash at every flush and compaction"
+    },
+    {
+      "project": "healthcare",
+      "value": "51 tests",
+      "label": "against real Postgres, booking races included"
+    },
+    {
+      "project": "vericloud",
+      "value": "0.79 F1",
+      "label": "under a sybil attack, vs 0.70 for the best baseline"
+    }
+  ],
+  "experience": [
+    {
+      "when": "May–Jul 2026",
+      "title": "Software Engineering Intern",
+      "org": "aiDataWorks, remote",
+      "points": [
+        "Built the generative AI layer of a healthcare product: prompts, retrieval and context for a RAG pipeline on OpenAI APIs and enterprise Google Cloud.",
+        "Wrote API- and database-level test cases for the LLM features and re-verified fixes with developers.",
+        "Wrote data-governance and security policies for three client engagements: mainframe data at a Tier 1 health insurer, cloud shop-floor data at a global semiconductor manufacturer, and a credential migration off Windows Server 2012."
+      ]
+    },
+    {
+      "when": "May–Jun 2025",
+      "title": "Computer Science Intern",
+      "org": "THDC India Limited, Khurja Super Thermal Power Project",
+      "points": [
+        "Worked on SQL and SAP ERP data workflows in Python and Pandas, plus plant networking, SCADA/PLC systems and cybersecurity controls."
+      ]
+    },
+    {
+      "when": "2023–2027",
+      "title": "B.Tech, Computer Science and Business Systems",
+      "org": "Vellore Institute of Technology, Vellore. CGPA 8.3",
+      "points": [
+        "Coursework: Computer Organization and Architecture, Operating Systems, Formal Languages and Automata, Data Structures and Algorithms, Design and Analysis of Algorithms, DBMS, Computer Networks.",
+        "Class XII (CBSE), Delhi Public School Ranchi: 87%. Class X (CBSE), DAV Jharsuguda: 99.8%."
+      ]
+    },
+    {
+      "when": "Ongoing",
+      "title": "Leadership and activities",
+      "org": "VIT Vellore",
+      "points": [
+        "Secretary, IEEE Power & Energy Society student chapter.",
+        "Ran a stall and competed in the pitch competition at E-Summit, VIT's entrepreneurship summit.",
+        "Karate black belt and assistant instructor.",
+        "Certifications: OCI Generative AI Professional, OCI AI Foundations, Google Cloud Core Infrastructure, Google AI Essentials."
+      ]
+    }
+  ],
+  "resumes": [
+    {
+      "title": "Software engineering",
+      "about": "Java and backend: the bug-repair agent, the booking backend, the LSM-tree store and the compiler.",
+      "file": "Rakshit_Ratan_Pathak_Resume_SDE.pdf"
+    },
+    {
+      "title": "AI and ML engineering",
+      "about": "The RAG internship work and five ML projects with measured, multi-seed results.",
+      "file": "Rakshit_Ratan_Pathak_Resume_AI_ML.pdf"
+    },
+    {
+      "title": "Compilers and GPU",
+      "about": "PTXForge, minic and cuda-gpu-bench, for compiler and system-software roles.",
+      "file": "Rakshit_Ratan_Pathak_Resume_Compiler.pdf"
+    }
+  ]
+}
