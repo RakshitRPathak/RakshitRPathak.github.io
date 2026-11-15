@@ -11,7 +11,7 @@ I build compilers and GPU tooling in C++, ML systems judged by multi-seed result
 | Page | Contents |
 | --- | --- |
 | [Home](https://rakshitrpathak.github.io/) | Summary, a chart of my matrix-multiply kernels measured on a Tesla T4, and selected work |
-| [Projects](https://rakshitrpathak.github.io/projects/) | 17 projects, filterable by area, each with its own page: the problem, the pipeline, results, caveats and links |
+| [Projects](https://rakshitrpathak.github.io/projects/) | 18 projects, filterable by area, each with its own page: the problem, the pipeline, results, caveats and links |
 | [Research](https://rakshitrpathak.github.io/research/) | 6 patent applications (5 published) and 3 IEEE Access manuscripts |
 | [Experience](https://rakshitrpathak.github.io/experience/) | aiDataWorks, THDC India Limited, education, leadership, certifications |
 | [Résumés](https://rakshitrpathak.github.io/resumes/) | One-page PDFs for software engineering, AI/ML and compiler roles |
@@ -34,6 +34,7 @@ Every project page says where its numbers come from (real data, simulated data o
 | Wildfire Prediction and Response | ML | [repo](https://github.com/RakshitRPathak/Wildfire-prediction-ml-model) |
 | Mine Tremor Detection | ML | [repo](https://github.com/RakshitRPathak/Mining-tremor-detection-Patent-cum-grant) |
 | agentic-bug-repair: autonomous bug-fixing agent | Software engineering | [agentic-bug-repair](https://github.com/RakshitRPathak/agentic-bug-repair) |
+| BankShield: cloud security platform with RAG over policy and live cloud state | Software engineering | [bankshield](https://github.com/RakshitRPathak/bankshield) |
 | mini-kv-store: crash-safe LSM-tree store | Software engineering | [mini-kv-store](https://github.com/RakshitRPathak/mini-kv-store) |
 | system-design-primitives | Software engineering | [system-design-primitives](https://github.com/RakshitRPathak/system-design-primitives) |
 | dsa-patterns | Software engineering | [dsa-patterns](https://github.com/RakshitRPathak/dsa-patterns) |
