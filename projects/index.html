@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Projects · Rakshit Ratan Pathak</title>
-<meta name="description" content="All 17 projects by Rakshit Ratan Pathak: compilers, GPU kernels, ML systems and backends, each with its results and caveats.">
+<meta name="description" content="All 18 projects by Rakshit Ratan Pathak: compilers, GPU kernels, ML systems and backends, each with its results and caveats.">
 <link rel="canonical" href="https://rakshitrpathak.github.io/projects/">
 <meta property="og:title" content="Projects · Rakshit Ratan Pathak">
-<meta property="og:description" content="All 17 projects by Rakshit Ratan Pathak: compilers, GPU kernels, ML systems and backends, each with its results and caveats.">
+<meta property="og:description" content="All 18 projects by Rakshit Ratan Pathak: compilers, GPU kernels, ML systems and backends, each with its results and caveats.">
 <meta property="og:url" content="https://rakshitrpathak.github.io/projects/">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
@@ -36,7 +36,7 @@
 <main id="main" tabindex="-1">
 <div class="phead"><h1>Projects</h1><p>Every project links to its code, and each page says where its numbers come from and what hasn't been verified yet.</p></div>
 <section class="stack">
-  <div class="shead"><div class="tabs" data-tabs role="group" aria-label="Filter projects" hidden><button type="button" data-filter="all" aria-pressed="true">All</button><button type="button" data-filter="systems" aria-pressed="false">Systems</button><button type="button" data-filter="ml" aria-pressed="false">ML</button><button type="button" data-filter="backend" aria-pressed="false">Software</button></div><span class="count" data-count aria-live="polite">17 projects</span></div>
+  <div class="shead"><div class="tabs" data-tabs role="group" aria-label="Filter projects" hidden><button type="button" data-filter="all" aria-pressed="true">All</button><button type="button" data-filter="systems" aria-pressed="false">Systems</button><button type="button" data-filter="ml" aria-pressed="false">ML</button><button type="button" data-filter="backend" aria-pressed="false">Software</button></div><span class="count" data-count aria-live="polite">18 projects</span></div>
   <div class="grid2"><a class="pcard" href="/projects/ptxforge/" data-track="systems">
       <p class="kicker">Systems and compilers</p><h3>PTXForge</h3>
       <p>An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner that reaches 85.6% of cuBLAS on a T4 with the nvcc-built kernel.</p>
@@ -81,6 +81,10 @@
       <p class="kicker">Software engineering</p><h3>agentic-bug-repair</h3>
       <p>Takes a Java repository with failing tests and tries to produce a verified fix as a pull request, in the style of SWE-agent systems but small enough to read in a sitting.</p>
       <div class="meta"><span class="pill ok">Complete</span><span class="pill">Seeded-bug benchmark</span></div>
+    </a><a class="pcard" href="/projects/bankshield/" data-track="backend">
+      <p class="kicker">Software engineering</p><h3>BankShield</h3>
+      <p>Answers questions like &quot;which resources break data residency right now, and how do we fix them?&quot; with the policy clause, the offending resources and the fix, limited to what the person asking is cleared to see.</p>
+      <div class="meta"><span class="pill ok">Complete</span><span class="pill">Simulated GCP estate; tests and eval</span></div>
     </a><a class="pcard" href="/projects/mini-kv-store/" data-track="backend">
       <p class="kicker">Software engineering</p><h3>mini-kv-store</h3>
       <p>A small storage engine built the way production LSM stores are, and tested by crashing it on purpose.</p>
