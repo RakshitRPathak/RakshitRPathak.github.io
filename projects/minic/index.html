@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>minic · Rakshit Ratan Pathak</title>
-<meta name="description" content="minic: A dependency-free compiler for a small imperative language, going through the same stages as a production compiler.">
+<meta name="description" content="minic: A dependency-free compiler for a small imperative language with functions and recursion: a bytecode back end, plus an SSA intermediate representation with six optimization passes, checked by a differential fuzzer.">
 <link rel="canonical" href="https://rakshitrpathak.github.io/projects/minic/">
 <meta property="og:title" content="minic · Rakshit Ratan Pathak">
-<meta property="og:description" content="minic: A dependency-free compiler for a small imperative language, going through the same stages as a production compiler.">
+<meta property="og:description" content="minic: A dependency-free compiler for a small imperative language with functions and recursion: a bytecode back end, plus an SSA intermediate representation with six optimization passes, checked by a differential fuzzer.">
 <meta property="og:url" content="https://rakshitrpathak.github.io/projects/minic/">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
@@ -38,7 +38,7 @@
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/projects/">Projects</a><span aria-hidden="true">/</span><a href="/projects/#systems">Systems and compilers</a></nav>
   <header class="dhead">
     <h1>minic</h1>
-    <p class="lede">A dependency-free compiler for a small imperative language, going through the same stages as a production compiler.</p>
+    <p class="lede">A dependency-free compiler for a small imperative language with functions and recursion: a bytecode back end, plus an SSA intermediate representation with six optimization passes, checked by a differential fuzzer.</p>
     <div class="pills"><span class="pill ok">Complete</span></div>
   </header>
 </div>
@@ -46,16 +46,16 @@
   <div class="story">
     <section><h2>The problem</h2><p>Built to understand every stage between source text and execution, including the parts textbooks skip: error messages with line numbers, forward jumps, and keeping optimizations from changing behaviour.</p></section>
     <section><h2>How it works</h2>
-      <ol class="steps" aria-label="Pipeline"><li><span>source</span></li><li><span>lexer</span></li><li><span>parser (AST)</span></li><li><span>semantic analysis</span></li><li><span>optimizer</span></li><li><span>bytecode + backpatching</span></li><li><span>stack VM</span></li></ol>
-      <ul><li>Hand-written lexer with one character of lookahead; recursive-descent parser building an AST.</li><li>Constant folding and dead-branch and dead-loop elimination. Folding shares its arithmetic code with the VM, so both agree on overflow and division.</li><li>Forward jumps are resolved by backpatching, the same problem linkers solve with relocations.</li><li>Semantic analysis runs before optimization, so removing dead code can never change which programs compile.</li></ul>
+      <ol class="steps" aria-label="Pipeline"><li><span>source</span></li><li><span>lexer</span></li><li><span>parser (AST)</span></li><li><span>semantic analysis</span></li><li><span>AST optimizer</span></li><li><span>bytecode + backpatching → stack VM</span></li><li><span>or: SSA IR → IR optimizer → IR interpreter</span></li></ol>
+      <ul><li>Hand-written lexer with one character of lookahead; recursive-descent parser building an AST.</li><li>Constant folding and dead-branch and dead-loop elimination. Folding shares its arithmetic code with the VM, so both agree on overflow and division.</li><li>Forward jumps are resolved by backpatching, the same problem linkers solve with relocations.</li><li>Semantic analysis runs before optimization, so removing dead code can never change which programs compile.</li><li>Functions with parameters, locals and recursion: the VM keeps a stack of call frames and reports runaway recursion instead of crashing.</li><li>A second back half lowers the AST to three-address code in SSA form over a control-flow graph, built directly in SSA with the algorithm of Braun et al.</li><li>Six IR passes run to a fixed point: constant propagation, branch folding, phi simplification, global value numbering over the dominator tree, dead code elimination and block merging. Calls, prints and any division that could fail are never removed.</li><li>A differential fuzzer generates random programs and requires identical output from the bytecode VM and the IR, optimized and not. It was checked against seven hand-planted optimizer bugs and reports each one.</li></ul>
     </section>
     <section><h2>Built with</h2><div class="pills"><span class="pill">C++17</span><span class="pill">CMake</span><span class="pill">ASan / UBSan</span></div></section>
   </div>
   <aside class="sheet" aria-labelledby="results-title">
     <h2 id="results-title">Results</h2>
     <div class="source"><span>Numbers come from</span><b>Deterministic tests</b></div>
-    <dl class="kv"><div><dt>Size</dt><dd>1,200+ lines, no dependencies</dd></div><div><dt>Automated tests</dt><dd>43 (12 check exact error messages)</dd></div><div><dt>Optimized vs unoptimized output</dt><dd>identical on all 14 test programs</dd></div><div><dt>Sanitizers</dt><dd>clean under ASan + UBSan</dd></div></dl>
-    
+    <dl class="kv"><div><dt>Size</dt><dd>about 2,900 lines of C++, no dependencies</dd></div><div><dt>Automated tests</dt><dd>119 checks (23 check exact error messages)</dd></div><div><dt>Bytecode VM vs SSA IR, optimized vs not</dt><dd>identical on all 20 test programs</dd></div><div><dt>Differential fuzzing</dt><dd>1,000 random programs per CI run, 4 modes each</dd></div><div><dt>Planted optimizer bugs caught by the fuzzer</dt><dd>7 of 7</dd></div><div><dt>Sanitizers</dt><dd>clean under ASan + UBSan</dd></div></dl>
+    <p class="caveat"><b>Before you quote these:</b> The SSA IR is interpreted, not compiled: there is no register allocator or machine back end yet. The IR optimizer has no loop-invariant code motion, inlining or redundant-load elimination.</p>
     <div class="actions"><a class="btn primary" href="https://github.com/RakshitRPathak/minic" target="_blank" rel="noopener">Code</a></div>
   </aside>
 </div>
