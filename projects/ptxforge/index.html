@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PTXForge · Rakshit Ratan Pathak</title>
-<meta name="description" content="PTXForge: An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner that reaches 85.6% of cuBLAS on a T4 with the nvcc-built kernel.">
+<meta name="description" content="PTXForge: An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner measured on two GPU architectures: 85.6% of cuBLAS on a Tesla T4 and 79.3% on a Blackwell RTX 5050 Laptop GPU with the nvcc-built kernel.">
 <link rel="canonical" href="https://rakshitrpathak.github.io/projects/ptxforge/">
 <meta property="og:title" content="PTXForge · Rakshit Ratan Pathak">
-<meta property="og:description" content="PTXForge: An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner that reaches 85.6% of cuBLAS on a T4 with the nvcc-built kernel.">
+<meta property="og:description" content="PTXForge: An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner measured on two GPU architectures: 85.6% of cuBLAS on a Tesla T4 and 79.3% on a Blackwell RTX 5050 Laptop GPU with the nvcc-built kernel.">
 <meta property="og:url" content="https://rakshitrpathak.github.io/projects/ptxforge/">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
@@ -38,7 +38,7 @@
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/projects/">Projects</a><span aria-hidden="true">/</span><a href="/projects/#systems">Systems and compilers</a></nav>
   <header class="dhead">
     <h1>PTXForge</h1>
-    <p class="lede">An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner that reaches 85.6% of cuBLAS on a T4 with the nvcc-built kernel.</p>
+    <p class="lede">An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner measured on two GPU architectures: 85.6% of cuBLAS on a Tesla T4 and 79.3% on a Blackwell RTX 5050 Laptop GPU with the nvcc-built kernel.</p>
     <div class="pills"><span class="pill prog">In progress</span></div>
   </header>
 </div>
@@ -47,15 +47,15 @@
     <section><h2>The problem</h2><p>Choosing tile sizes and shared-memory layout for a GPU kernel by hand is slow, and a wrong guess can cost several times in throughput. PTXForge searches the configuration space with a cost model, measures every candidate on the GPU, and keeps a trace of each decision.</p></section>
     <section><h2>How it works</h2>
       <ol class="steps" aria-label="Pipeline"><li><span>linalg</span></li><li><span>fuse-epilogue</span></li><li><span>tile, fuse, vectorize (transform schedule)</span></li><li><span>bufferize in place</span></li><li><span>approximate-math</span></li><li><span>gpu → nvvm → llvm</span></li><li><span>PTX (sm_75)</span></li></ol>
-      <ul><li>The MLIR passes build against LLVM 19 and lower linalg to PTX in six stages, about 0.2 s, with no CUDA toolkit. The kernel takes four pointers and keeps each thread&#x27;s 4×4 accumulator in registers.</li><li>Four custom passes: epilogue fusion, bank-conflict padding for shared memory, an arith-only tanh/fabs so the kernel needs no libdevice, and removal of the no-op copies bufferization leaves behind.</li><li>Tile sizes come from a transform schedule the tuner renders per config, so trying a new config needs no C++ rebuild.</li><li>Header-only C++20 tuner: a 3,610-config search space, a roofline cost model (arithmetic intensity, register caps, occupancy, wave quantization) and closed-loop search. Advisors (none, random, rules, knowledge graph, LLM) are validated in C++ before anything runs.</li><li>The first T4 run showed the cost model ranks near-optimal configs badly (Spearman ρ = −0.67). The tuner still reached 85.6% of cuBLAS because it keeps the measured best, which is the argument for closed-loop measurement.</li></ul>
+      <ul><li>The MLIR passes build against LLVM 19 and lower linalg to PTX in six stages, about 0.2 s, with no CUDA toolkit. The kernel takes four pointers and keeps each thread&#x27;s 4×4 accumulator in registers.</li><li>Five custom passes: epilogue fusion, bank-conflict padding for shared memory, an arith-only tanh/fabs so the kernel needs no libdevice, removal of the no-op copies bufferization leaves behind, and one that keeps the outlined kernel&#x27;s parameters in source order (outlining had silently reordered them, which the first GPU run caught as NaN output).</li><li>Tile sizes come from a transform schedule the tuner renders per config, so trying a new config needs no C++ rebuild.</li><li>Header-only C++20 tuner: a 3,610-config search space, a roofline cost model (arithmetic intensity, register caps, occupancy, wave quantization) and closed-loop search. Advisors (none, random, rules, knowledge graph, LLM) are validated in C++ before anything runs.</li><li>The cost model ranks near-optimal configs badly on both GPUs (Spearman ρ = −0.67 on the T4, −0.37 on the RTX 5050). On Blackwell it gave one prediction to eight configs that measured 3,446 to 7,245 GFLOP/s, missing that an 8×4 per-thread tile beats 4×8 at every K depth. The tuner still finds good configs because it keeps the measured best, which is the argument for closed-loop measurement.</li><li>When the laptop&#x27;s driver turned out older than its CUDA toolkit and refused the toolkit&#x27;s PTX, the runner learned to fall back to cubins; a fake CUDA driver in CI tests that path without a GPU.</li></ul>
     </section>
     <section><h2>Built with</h2><div class="pills"><span class="pill">C++20</span><span class="pill">MLIR / LLVM 19</span><span class="pill">TableGen</span><span class="pill">CUDA Driver API</span></div></section>
   </div>
   <aside class="sheet" aria-labelledby="results-title">
     <h2 id="results-title">Results</h2>
-    <div class="source"><span>Numbers come from</span><b>Measured on a Tesla T4; MLIR path checked on CPU</b></div>
-    <dl class="kv"><div><dt>Tuned nvcc kernel, 2048³ FP32</dt><dd>3,688.5 GFLOP/s</dd></div><div><dt>Share of cuBLAS, same run</dt><dd>85.6%</dd></div><div><dt>Gain from tuning</dt><dd>1.78×</dd></div><div><dt>Cost model vs measured rank</dt><dd>ρ = −0.67</dd></div><div><dt>MLIR lowering vs fp64 reference (CPU)</dt><dd>max error ~1e-6</dd></div><div><dt>FileCheck cases</dt><dd>7, all pass</dd></div><div><dt>C++ unit tests</dt><dd>16, clean under ASan + UBSan</dd></div></dl>
-    <p class="caveat"><b>Before you quote these:</b> The 85.6% comes from one 40-trial tuning run of the nvcc-built kernel on a Colab T4. The MLIR-generated PTX is checked numerically on the CPU but hasn&#x27;t been run on a GPU yet, and it doesn&#x27;t stage tiles in shared memory, so expect it to be well below the tuned kernel. The advisor ablation hasn&#x27;t been run on hardware.</p>
+    <div class="source"><span>Numbers come from</span><b>Measured on a Tesla T4 and an RTX 5050 Laptop GPU</b></div>
+    <dl class="kv"><div><dt>Tesla T4: tuned nvcc kernel, 2048³ FP32</dt><dd>3,688.5 GFLOP/s</dd></div><div><dt>Tesla T4: share of cuBLAS, same run</dt><dd>85.6%</dd></div><div><dt>Tesla T4: gain from tuning</dt><dd>1.78×</dd></div><div><dt>Tesla T4: cost model vs measured rank</dt><dd>ρ = −0.67</dd></div><div><dt>RTX 5050 Laptop (Blackwell): tuned kernel</dt><dd>7,546.6 GFLOP/s, 79.3% of cuBLAS, 1.50×</dd></div><div><dt>RTX 5050 Laptop: cost model vs measured rank</dt><dd>ρ = −0.37</dd></div><div><dt>MLIR-generated kernel on the RTX 5050</dt><dd>correct, 3,008 GFLOP/s (31.6% of cuBLAS)</dd></div><div><dt>MLIR lowering vs fp64 reference (CPU)</dt><dd>max error ~1e-6</dd></div><div><dt>FileCheck cases</dt><dd>10, all pass</dd></div><div><dt>C++ unit tests</dt><dd>16, clean under ASan + UBSan</dd></div></dl>
+    <p class="caveat"><b>Before you quote these:</b> Each GPU has one 40-trial tuning run of the nvcc-built kernel. Only same-run ratios compare across sessions: cuBLAS itself measured 9.5 TFLOP/s in the RTX 5050 run against 6.7–6.9 in earlier runs on the same laptop. The MLIR-generated kernel is correct but slow, because its schedule doesn&#x27;t stage tiles in shared memory yet. The advisor ablation hasn&#x27;t been run on hardware.</p>
     <div class="actions"><a class="btn primary" href="https://github.com/RakshitRPathak/ptxforge" target="_blank" rel="noopener">Code</a></div>
   </aside>
 </div>
@@ -66,8 +66,8 @@
       <div class="meta"><span class="pill ok">Complete</span><span class="pill">Deterministic tests</span></div>
     </a><a class="pcard" href="/projects/cuda-gpu-bench/" data-track="systems">
       <h3>cuda-gpu-bench</h3>
-      <p>Hand-written CUDA kernels for vector add, matrix multiply and sum reduction, benchmarked on a T4 and explained instruction by instruction.</p>
-      <div class="meta"><span class="pill ok">Complete</span><span class="pill">Measured on a Tesla T4</span></div>
+      <p>Hand-written CUDA kernels for vector add, matrix multiply and sum reduction, benchmarked on a Tesla T4 and a Blackwell RTX 5050 Laptop GPU and explained instruction by instruction.</p>
+      <div class="meta"><span class="pill ok">Complete</span><span class="pill">Measured on a Tesla T4 and an RTX 5050 Laptop GPU</span></div>
     </a></div></section>
 <nav class="pager" aria-label="Previous and next project"><a href="/projects/pdf-audio/"><span>Previous</span><b>PDF-to-Audio Generator</b></a><a href="/projects/minic/"><span>Next</span><b>minic</b></a></nav>
 </main>
