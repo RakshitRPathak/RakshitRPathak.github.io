@@ -23,9 +23,9 @@ Every project page says where its numbers come from (real data, simulated data o
 
 | Project | Layer | Repository |
 | --- | --- | --- |
-| PTXForge: GPU kernel compiler and autotuner, 85.6% of cuBLAS on a T4 (in progress) | Systems | [ptxforge](https://github.com/RakshitRPathak/ptxforge) |
+| PTXForge: GPU kernel compiler and autotuner, 85.6% of cuBLAS on a T4 and 79.3% on an RTX 5050 (in progress) | Systems | [ptxforge](https://github.com/RakshitRPathak/ptxforge) |
 | minic: a compiler in C++17 with an SSA optimizer | Systems | [minic](https://github.com/RakshitRPathak/minic) |
-| cuda-gpu-bench: CUDA kernels benchmarked on a T4 | Systems | [cuda-gpu-bench](https://github.com/RakshitRPathak/cuda-gpu-bench) |
+| cuda-gpu-bench: CUDA kernels benchmarked on a T4 and an RTX 5050 | Systems | [cuda-gpu-bench](https://github.com/RakshitRPathak/cuda-gpu-bench) |
 | Opinion Lineage System | ML | [OpinionLineage-OLS](https://github.com/RakshitRPathak/OpinionLineage-OLS), [Opinion-lineage-system](https://github.com/RakshitRPathak/Opinion-lineage-system) |
 | RailConflict-PSCL | ML | [RailConflict-PSCL](https://github.com/RakshitRPathak/RailConflict-PSCL) |
 | TrustDecay-TKG | ML | [TrustDecay-TKG](https://github.com/RakshitRPathak/TrustDecay-TKG) |
