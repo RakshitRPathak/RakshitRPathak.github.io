@@ -60,7 +60,6 @@
     <h2 id="results-title">Results</h2>
     <div class="source"><span>Numbers come from</span><b>Measured on a Tesla T4 and an RTX 5050 Laptop GPU</b></div>
     <dl class="kv"><div><dt>Tesla T4: vec_add bandwidth</dt><dd>257 GB/s (80% of peak)</dd></div><div><dt>Tesla T4: matmul at N = 2048, tiled vs naive</dt><dd>683 vs 447 GFLOP/s</dd></div><div><dt>Tesla T4: tiled matmul vs cuBLAS</dt><dd>14.6%</dd></div><div><dt>Tesla T4: reduction, atomics vs shuffle</dt><dd>170 vs 234 GB/s</dd></div><div><dt>RTX 5050 Laptop: tiled vs naive at N = 2048</dt><dd>912 vs 716 GFLOP/s (1.27×, vs 1.53× on the T4)</dd></div><div><dt>RTX 5050 Laptop: vec_add bandwidth</dt><dd>272 GB/s (71% of peak)</dd></div><div><dt>RTX 5050 Laptop: reduction, atomics vs shuffle</dt><dd>178 vs 203 GB/s</dd></div><div><dt>CPU emulator checks</dt><dd>33, all pass</dd></div></dl>
-    <p class="caveat"><b>Before you quote these:</b> Median of 3 runs on one Colab T4. The hand-written matmul is a teaching kernel; it sits at about 15% of cuBLAS.</p>
     <div class="actions"><a class="btn primary" href="https://github.com/RakshitRPathak/cuda-gpu-bench" target="_blank" rel="noopener">Code</a></div>
   </aside>
 </div>

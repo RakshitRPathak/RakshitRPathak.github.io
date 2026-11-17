@@ -60,7 +60,6 @@
     <h2 id="results-title">Results</h2>
     <div class="source"><span>Numbers come from</span><b>Deterministic tests</b></div>
     <dl class="kv"><div><dt>Size</dt><dd>about 2,900 lines of C++, no dependencies</dd></div><div><dt>Automated tests</dt><dd>119 checks (23 check exact error messages)</dd></div><div><dt>Bytecode VM vs SSA IR, optimized vs not</dt><dd>identical on all 20 test programs</dd></div><div><dt>Differential fuzzing</dt><dd>1,000 random programs per CI run, 4 modes each</dd></div><div><dt>Planted optimizer bugs caught by the fuzzer</dt><dd>7 of 7</dd></div><div><dt>Sanitizers</dt><dd>clean under ASan + UBSan</dd></div></dl>
-    <p class="caveat"><b>Before you quote these:</b> The SSA IR is interpreted, not compiled: there is no register allocator or machine back end yet. The IR optimizer has no loop-invariant code motion, inlining or redundant-load elimination.</p>
     <div class="actions"><a class="btn primary" href="https://github.com/RakshitRPathak/minic" target="_blank" rel="noopener">Code</a></div>
   </aside>
 </div>
