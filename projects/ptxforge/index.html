@@ -10,14 +10,14 @@
 <meta property="og:description" content="PTXForge: An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner measured on two GPU architectures: 85.6% of cuBLAS on a Tesla T4 and 79.3% on a Blackwell RTX 5050 Laptop GPU with the nvcc-built kernel.">
 <meta property="og:url" content="https://rakshitrpathak.github.io/projects/ptxforge/">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f1f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15132b" media="(prefers-color-scheme: dark)">
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315171c'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315132b'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -42,11 +42,16 @@
     <div class="pills"><span class="pill prog">In progress</span></div>
   </header>
 </div>
+<section class="flowsec" aria-labelledby="flow-title">
+  <h2 id="flow-title">Pipeline</h2>
+  <div class="flow" data-flow style="--cols:4"><svg class="wire" aria-hidden="true"></svg>
+    <ol><li><span class="n">1</span><span class="t">linalg</span></li><li><span class="n">2</span><span class="t">fuse-epilogue</span></li><li><span class="n">3</span><span class="t">tile, fuse, vectorize (transform schedule)</span></li><li><span class="n">4</span><span class="t">bufferize in place</span></li><li><span class="n">5</span><span class="t">approximate-math</span></li><li><span class="n">6</span><span class="t">gpu → nvvm → llvm</span></li><li><span class="n">7</span><span class="t">PTX (sm_75)</span></li></ol>
+  </div>
+</section>
 <div class="dgrid">
   <div class="story">
     <section><h2>The problem</h2><p>Choosing tile sizes and shared-memory layout for a GPU kernel by hand is slow, and a wrong guess can cost several times in throughput. PTXForge searches the configuration space with a cost model, measures every candidate on the GPU, and keeps a trace of each decision.</p></section>
     <section><h2>How it works</h2>
-      <ol class="steps" aria-label="Pipeline"><li><span>linalg</span></li><li><span>fuse-epilogue</span></li><li><span>tile, fuse, vectorize (transform schedule)</span></li><li><span>bufferize in place</span></li><li><span>approximate-math</span></li><li><span>gpu → nvvm → llvm</span></li><li><span>PTX (sm_75)</span></li></ol>
       <ul><li>The MLIR passes build against LLVM 19 and lower linalg to PTX in six stages, about 0.2 s, with no CUDA toolkit. The kernel takes four pointers and keeps each thread&#x27;s 4×4 accumulator in registers.</li><li>Five custom passes: epilogue fusion, bank-conflict padding for shared memory, an arith-only tanh/fabs so the kernel needs no libdevice, removal of the no-op copies bufferization leaves behind, and one that keeps the outlined kernel&#x27;s parameters in source order (outlining had silently reordered them, which the first GPU run caught as NaN output).</li><li>Tile sizes come from a transform schedule the tuner renders per config, so trying a new config needs no C++ rebuild.</li><li>Header-only C++20 tuner: a 3,610-config search space, a roofline cost model (arithmetic intensity, register caps, occupancy, wave quantization) and closed-loop search. Advisors (none, random, rules, knowledge graph, LLM) are validated in C++ before anything runs.</li><li>The cost model ranks near-optimal configs badly on both GPUs (Spearman ρ = −0.67 on the T4, −0.37 on the RTX 5050). On Blackwell it gave one prediction to eight configs that measured 3,446 to 7,245 GFLOP/s, missing that an 8×4 per-thread tile beats 4×8 at every K depth. The tuner still finds good configs because it keeps the measured best, which is the argument for closed-loop measurement.</li><li>When the laptop&#x27;s driver turned out older than its CUDA toolkit and refused the toolkit&#x27;s PTX, the runner learned to fall back to cubins; a fake CUDA driver in CI tests that path without a GPU.</li></ul>
     </section>
     <section><h2>Built with</h2><div class="pills"><span class="pill">C++20</span><span class="pill">MLIR / LLVM 19</span><span class="pill">TableGen</span><span class="pill">CUDA Driver API</span></div></section>
@@ -78,5 +83,6 @@
   </div>
 </footer>
 <script src="/assets/site.js" defer></script>
+
 </body>
 </html>

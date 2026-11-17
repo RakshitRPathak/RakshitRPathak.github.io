@@ -10,14 +10,14 @@
 <meta property="og:description" content="TrustDecay-TKG: Forecasts how far each IT asset&#x27;s trust has decayed since its last audit, then turns forecasts into an audit queue with a guarantee on missed assets.">
 <meta property="og:url" content="https://rakshitrpathak.github.io/projects/trustdecay-tkg/">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f1f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15132b" media="(prefers-color-scheme: dark)">
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315171c'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315132b'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -42,11 +42,16 @@
     <div class="pills"><span class="pill ok">Complete</span><span class="pill">Patent: Published, application 202641108535</span></div>
   </header>
 </div>
+<section class="flowsec" aria-labelledby="flow-title">
+  <h2 id="flow-title">Pipeline</h2>
+  <div class="flow" data-flow style="--cols:3"><svg class="wire" aria-hidden="true"></svg>
+    <ol><li><span class="n">1</span><span class="t">audit + security events</span></li><li><span class="n">2</span><span class="t">temporal knowledge graph</span></li><li><span class="n">3</span><span class="t">features</span></li><li><span class="n">4</span><span class="t">trust-decay forecast</span></li><li><span class="n">5</span><span class="t">adaptive conformal selection</span></li><li><span class="n">6</span><span class="t">audit queue</span></li></ol>
+  </div>
+</section>
 <div class="dgrid">
   <div class="story">
     <section><h2>The problem</h2><p>Audit teams cover a fraction of assets each cycle. Rotation and severity-score rules spend that budget on the wrong assets.</p></section>
     <section><h2>How it works</h2>
-      <ol class="steps" aria-label="Pipeline"><li><span>audit + security events</span></li><li><span>temporal knowledge graph</span></li><li><span>features</span></li><li><span>trust-decay forecast</span></li><li><span>adaptive conformal selection</span></li><li><span>audit queue</span></li></ol>
       <ul><li>Events become time-stamped graph quadruples; features summarise each asset&#x27;s recent history and neighbourhood.</li><li>Delayed-feedback adaptive conformal selection handles audit outcomes that arrive weeks late and holds missed severe assets near a target rate.</li><li>Ablations showed the gain comes from temporal features; relational graph features added little in this setting.</li></ul>
     </section>
     <section><h2>Built with</h2><div class="pills"><span class="pill">Python</span><span class="pill">temporal knowledge graphs</span><span class="pill">conformal prediction</span></div></section>
@@ -82,5 +87,6 @@
   </div>
 </footer>
 <script src="/assets/site.js" defer></script>
+
 </body>
 </html>

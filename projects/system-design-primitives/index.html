@@ -10,14 +10,14 @@
 <meta property="og:description" content="system-design-primitives: The building blocks that system-design interviews ask about, implemented and tested instead of drawn on a whiteboard.">
 <meta property="og:url" content="https://rakshitrpathak.github.io/projects/system-design-primitives/">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f1f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15132b" media="(prefers-color-scheme: dark)">
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315171c'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315132b'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -42,11 +42,16 @@
     <div class="pills"><span class="pill ok">Complete</span></div>
   </header>
 </div>
+<section class="flowsec" aria-labelledby="flow-title">
+  <h2 id="flow-title">Pipeline</h2>
+  <div class="flow" data-flow style="--cols:5"><svg class="wire" aria-hidden="true"></svg>
+    <ol><li><span class="n">1</span><span class="t">LRU / LFU cache</span></li><li><span class="n">2</span><span class="t">token bucket</span></li><li><span class="n">3</span><span class="t">sliding-window limiter</span></li><li><span class="n">4</span><span class="t">consistent hashing</span></li><li><span class="n">5</span><span class="t">Bloom filter</span></li></ol>
+  </div>
+</section>
 <div class="dgrid">
   <div class="story">
     <section><h2>The problem</h2><p>Knowing that an LRU cache or a token bucket exists is different from getting its edge cases right.</p></section>
     <section><h2>How it works</h2>
-      <ol class="steps" aria-label="Pipeline"><li><span>LRU / LFU cache</span></li><li><span>token bucket</span></li><li><span>sliding-window limiter</span></li><li><span>consistent hashing</span></li><li><span>Bloom filter</span></li></ol>
       <ul><li>LRU and LFU caches, token-bucket and sliding-window rate limiters, consistent hashing and a Bloom filter.</li><li>Each is checked against a reference implementation and covered by tests for its edge cases.</li></ul>
     </section>
     <section><h2>Built with</h2><div class="pills"><span class="pill">Java</span><span class="pill">JDK only</span></div></section>
@@ -82,5 +87,6 @@
   </div>
 </footer>
 <script src="/assets/site.js" defer></script>
+
 </body>
 </html>

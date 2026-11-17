@@ -10,14 +10,14 @@
 <meta property="og:description" content="BankShield: Answers questions like &quot;which resources break data residency right now, and how do we fix them?&quot; with the policy clause, the offending resources and the fix, limited to what the person asking is cleared to see.">
 <meta property="og:url" content="https://rakshitrpathak.github.io/projects/bankshield/">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f1f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15132b" media="(prefers-color-scheme: dark)">
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315171c'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315132b'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -42,11 +42,16 @@
     <div class="pills"><span class="pill ok">Complete</span></div>
   </header>
 </div>
+<section class="flowsec" aria-labelledby="flow-title">
+  <h2 id="flow-title">Pipeline</h2>
+  <div class="flow" data-flow style="--cols:5"><svg class="wire" aria-hidden="true"></svg>
+    <ol><li><span class="n">1</span><span class="t">question</span></li><li><span class="n">2</span><span class="t">injection screen</span></li><li><span class="n">3</span><span class="t">clearance filter</span></li><li><span class="n">4</span><span class="t">hybrid retrieval</span></li><li><span class="n">5</span><span class="t">relevance gate</span></li><li><span class="n">6</span><span class="t">live findings and alerts</span></li><li><span class="n">7</span><span class="t">answer</span></li><li><span class="n">8</span><span class="t">citation check</span></li><li><span class="n">9</span><span class="t">audit trail</span></li></ol>
+  </div>
+</section>
 <div class="dgrid">
   <div class="story">
     <section><h2>The problem</h2><p>In a bank, the policy documents say what must be true and the scanners say what is true, and the two are rarely joined. An analyst has to look up the clause, find the resources, and work out whether they are even allowed to see the answer. BankShield joins the two and refuses to answer without citing a clause it actually retrieved.</p></section>
     <section><h2>How it works</h2>
-      <ol class="steps" aria-label="Pipeline"><li><span>question</span></li><li><span>injection screen</span></li><li><span>clearance filter</span></li><li><span>hybrid retrieval</span></li><li><span>relevance gate</span></li><li><span>live findings and alerts</span></li><li><span>answer</span></li><li><span>citation check</span></li><li><span>audit trail</span></li></ol>
       <ul><li>33 posture rules and 10 log detections run over a simulated four-project estate; each maps to policy clauses and ATT&amp;CK techniques and carries a risk score, a fix deadline and a remediation command. Rule expressions are checked against an allow-list before they run instead of being passed to eval.</li><li>Retrieval is BM25 plus TF-IDF over 67 policy clauses. The clearance filter is applied before anything is scored, so whether the system answers cannot reveal that a restricted clause matched.</li><li>Findings and live alerts are chained into attack paths, such as a leaked key on a service account that holds an editor role, and alerts are grouped by identity into cases.</li><li>Response playbooks run a step on their own only when the evidence meets the step&#x27;s precondition. Everything else needs a senior analyst, and not the person who opened the incident.</li><li>Every question and action goes into an append-only, hash-chained audit trail with an external checkpoint that detects truncation.</li></ul>
     </section>
     <section><h2>Built with</h2><div class="pills"><span class="pill">Python</span><span class="pill">FastAPI</span><span class="pill">SQLite</span><span class="pill">scikit-learn</span><span class="pill">BM25</span><span class="pill">Ollama</span></div></section>
@@ -82,5 +87,6 @@
   </div>
 </footer>
 <script src="/assets/site.js" defer></script>
+
 </body>
 </html>

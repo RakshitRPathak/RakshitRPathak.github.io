@@ -56,8 +56,9 @@ Commit the generated pages along with your change; GitHub Pages serves them as t
 ```
 data/site.json       all content: projects, patents, papers, experience, résumés, the hero chart
 build.py             generates the pages below from data/site.json
-assets/site.css      styles (light and dark)
-assets/site.js       theme toggle, phone menu, project filter, copy email
+assets/site.css      styles (light and dark); amber = compute and results, teal = memory and data movement
+assets/site.js       theme toggle, phone menu, project filter, copy email, animated pipeline flows
+assets/gemm.js       home-page hero: a tiled matrix multiply drawn in 3D with raw WebGL (no libraries)
 index.html           home page             (generated)
 projects/…           project index + one page per project (generated)
 research/, experience/, resumes/, contact/   (generated)

@@ -10,14 +10,14 @@
 <meta property="og:description" content="agentic-bug-repair: Takes a Java repository with failing tests and tries to produce a verified fix as a pull request, in the style of SWE-agent systems but small enough to read in a sitting.">
 <meta property="og:url" content="https://rakshitrpathak.github.io/projects/agentic-bug-repair/">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f1f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15132b" media="(prefers-color-scheme: dark)">
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315171c'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315132b'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -42,11 +42,16 @@
     <div class="pills"><span class="pill ok">Complete</span></div>
   </header>
 </div>
+<section class="flowsec" aria-labelledby="flow-title">
+  <h2 id="flow-title">Pipeline</h2>
+  <div class="flow" data-flow style="--cols:4"><svg class="wire" aria-hidden="true"></svg>
+    <ol><li><span class="n">1</span><span class="t">failing build (webhook or CLI)</span></li><li><span class="n">2</span><span class="t">code graph</span></li><li><span class="n">3</span><span class="t">fault localization</span></li><li><span class="n">4</span><span class="t">patch synthesis</span></li><li><span class="n">5</span><span class="t">sandboxed tests</span></li><li><span class="n">6</span><span class="t">critic (≤ 3 rounds)</span></li><li><span class="n">7</span><span class="t">clean-checkout re-check</span></li><li><span class="n">8</span><span class="t">pull request</span></li></ol>
+  </div>
+</section>
 <div class="dgrid">
   <div class="story">
     <section><h2>The problem</h2><p>A failing build usually needs a person to find the faulty method and try fixes by hand. The agent automates that loop and only publishes a diff that passes every test on a clean checkout.</p></section>
     <section><h2>How it works</h2>
-      <ol class="steps" aria-label="Pipeline"><li><span>failing build (webhook or CLI)</span></li><li><span>code graph</span></li><li><span>fault localization</span></li><li><span>patch synthesis</span></li><li><span>sandboxed tests</span></li><li><span>critic (≤ 3 rounds)</span></li><li><span>clean-checkout re-check</span></li><li><span>pull request</span></li></ol>
       <ul><li>The JDK compiler API parses the repository into a code graph with call, import, inheritance and field-write edges.</li><li>Fault localization combines test failures, the graph and text retrieval to rank suspect methods.</li><li>Candidate diffs run in an isolated sandbox; failures are fed back for up to three correction rounds.</li><li>Patches come from a free mutation search first and then from any OpenAI-compatible model, local (Ollama) or hosted. A model run checks that the model answers before it starts, keeps the mutation search going when the model fails, and flags any result the model did not really take part in.</li><li>A GitHub webhook can trigger runs, and a dashboard shows the state machine, the diff and telemetry. State-changing calls require same-origin JSON on a loopback host.</li></ul>
     </section>
     <section><h2>Built with</h2><div class="pills"><span class="pill">Java 17</span><span class="pill">JDK compiler API</span><span class="pill">Ollama / OpenAI-compatible LLMs</span><span class="pill">no dependencies</span></div></section>
@@ -82,5 +87,6 @@
   </div>
 </footer>
 <script src="/assets/site.js" defer></script>
+
 </body>
 </html>

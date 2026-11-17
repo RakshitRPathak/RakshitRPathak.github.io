@@ -10,14 +10,14 @@
 <meta property="og:description" content="minic: A dependency-free compiler for a small imperative language with functions and recursion: a bytecode back end, plus an SSA intermediate representation with six optimization passes, checked by a differential fuzzer.">
 <meta property="og:url" content="https://rakshitrpathak.github.io/projects/minic/">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f1f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15132b" media="(prefers-color-scheme: dark)">
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315171c'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315132b'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -42,11 +42,16 @@
     <div class="pills"><span class="pill ok">Complete</span></div>
   </header>
 </div>
+<section class="flowsec" aria-labelledby="flow-title">
+  <h2 id="flow-title">Pipeline</h2>
+  <div class="flow" data-flow style="--cols:4"><svg class="wire" aria-hidden="true"></svg>
+    <ol><li><span class="n">1</span><span class="t">source</span></li><li><span class="n">2</span><span class="t">lexer</span></li><li><span class="n">3</span><span class="t">parser (AST)</span></li><li><span class="n">4</span><span class="t">semantic analysis</span></li><li><span class="n">5</span><span class="t">AST optimizer</span></li><li><span class="n">6</span><span class="t">bytecode + backpatching → stack VM</span></li><li><span class="n">7</span><span class="t">or: SSA IR → IR optimizer → IR interpreter</span></li></ol>
+  </div>
+</section>
 <div class="dgrid">
   <div class="story">
     <section><h2>The problem</h2><p>Built to understand every stage between source text and execution, including the parts textbooks skip: error messages with line numbers, forward jumps, and keeping optimizations from changing behaviour.</p></section>
     <section><h2>How it works</h2>
-      <ol class="steps" aria-label="Pipeline"><li><span>source</span></li><li><span>lexer</span></li><li><span>parser (AST)</span></li><li><span>semantic analysis</span></li><li><span>AST optimizer</span></li><li><span>bytecode + backpatching → stack VM</span></li><li><span>or: SSA IR → IR optimizer → IR interpreter</span></li></ol>
       <ul><li>Hand-written lexer with one character of lookahead; recursive-descent parser building an AST.</li><li>Constant folding and dead-branch and dead-loop elimination. Folding shares its arithmetic code with the VM, so both agree on overflow and division.</li><li>Forward jumps are resolved by backpatching, the same problem linkers solve with relocations.</li><li>Semantic analysis runs before optimization, so removing dead code can never change which programs compile.</li><li>Functions with parameters, locals and recursion: the VM keeps a stack of call frames and reports runaway recursion instead of crashing.</li><li>A second back half lowers the AST to three-address code in SSA form over a control-flow graph, built directly in SSA with the algorithm of Braun et al.</li><li>Six IR passes run to a fixed point: constant propagation, branch folding, phi simplification, global value numbering over the dominator tree, dead code elimination and block merging. Calls, prints and any division that could fail are never removed.</li><li>A differential fuzzer generates random programs and requires identical output from the bytecode VM and the IR, optimized and not. It was checked against seven hand-planted optimizer bugs and reports each one.</li></ul>
     </section>
     <section><h2>Built with</h2><div class="pills"><span class="pill">C++17</span><span class="pill">CMake</span><span class="pill">ASan / UBSan</span></div></section>
@@ -78,5 +83,6 @@
   </div>
 </footer>
 <script src="/assets/site.js" defer></script>
+
 </body>
 </html>
