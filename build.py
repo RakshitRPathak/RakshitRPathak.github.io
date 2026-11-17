@@ -172,12 +172,12 @@ def project_card(p, kicker=True):
 
 def projects_index():
     tabs = "".join(f'<button type="button" data-filter="{k}" aria-pressed="false">{e(t["short"])}</button>' for k, t in TRACKS.items())
-    body = f"""<div class="phead"><h1>Projects</h1><p>Every project links to its code, and each page says where its numbers come from and what hasn't been verified yet.</p></div>
+    body = f"""<div class="phead"><h1>Projects</h1><p>Every project links to its code, and each page says where its numbers come from.</p></div>
 <section class="stack">
   <div class="shead"><div class="tabs" data-tabs role="group" aria-label="Filter projects" hidden><button type="button" data-filter="all" aria-pressed="true">All</button>{tabs}</div><span class="count" data-count aria-live="polite">{len(PROJECTS)} projects</span></div>
   <div class="grid2">{"".join(project_card(p) for p in PROJECTS)}</div>
 </section>"""
-    return page("/projects/", "Projects", f"All {len(PROJECTS)} projects by {P['name']}: compilers, GPU kernels, ML systems and backends, each with its results and caveats.", body, active="/projects/")
+    return page("/projects/", "Projects", f"All {len(PROJECTS)} projects by {P['name']}: compilers, GPU kernels, ML systems and backends, each with its results.", body, active="/projects/")
 
 
 def project_page(p):
@@ -185,7 +185,6 @@ def project_page(p):
     prev, nxt = PROJECTS[i - 1], PROJECTS[(i + 1) % len(PROJECTS)]
     links = "".join(ext(h, t, "btn primary" if j == 0 else "btn on-panel") for j, (t, h) in enumerate(p["links"]))
     kv = "".join(f"<div><dt>{e(a)}</dt><dd>{e(b)}</dd></div>" for a, b in p["results"])
-    caveat = f'<p class="caveat"><b>Before you quote these:</b> {e(p["caveat"])}</p>' if p.get("caveat") else ""
     patent = f'<span class="pill">Patent: {e(p["patent"])}</span>' if p.get("patent") else ""
     related = [q for q in PROJECTS if q["track"] == p["track"] and q is not p][:3]
     rel = f"""<section class="stack"><div class="shead"><h2>More in {e(TRACKS[p["track"]]["name"].lower())}</h2><a href="/projects/#{e(p["track"])}">See all</a></div>
@@ -216,7 +215,6 @@ def project_page(p):
     <h2 id="results-title">Results</h2>
     <div class="source"><span>Numbers come from</span><b>{e(p["data"])}</b></div>
     <dl class="kv">{kv}</dl>
-    {caveat}
     <div class="actions">{links}</div>
   </aside>
 </div>

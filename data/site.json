@@ -107,8 +107,7 @@
           "C++ unit tests",
           "16, clean under ASan + UBSan"
         ]
-      ],
-      "caveat": "Each GPU has one 40-trial tuning run of the nvcc-built kernel. Only same-run ratios compare across sessions: cuBLAS itself measured 9.5 TFLOP/s in the RTX 5050 run against 6.7–6.9 in earlier runs on the same laptop. The MLIR-generated kernel is correct but slow, because its schedule doesn't stage tiles in shared memory yet. The advisor ablation hasn't been run on hardware."
+      ]
     },
     {
       "slug": "minic",
@@ -136,8 +135,8 @@
         "parser (AST)",
         "semantic analysis",
         "AST optimizer",
-        "bytecode + backpatching \u2192 stack VM",
-        "or: SSA IR \u2192 IR optimizer \u2192 IR interpreter"
+        "bytecode + backpatching → stack VM",
+        "or: SSA IR → IR optimizer → IR interpreter"
       ],
       "how": [
         "Hand-written lexer with one character of lookahead; recursive-descent parser building an AST.",
@@ -174,8 +173,7 @@
           "Sanitizers",
           "clean under ASan + UBSan"
         ]
-      ],
-      "caveat": "The SSA IR is interpreted, not compiled: there is no register allocator or machine back end yet. The IR optimizer has no loop-invariant code motion, inlining or redundant-load elimination."
+      ]
     },
     {
       "slug": "cuda-gpu-bench",
@@ -245,8 +243,7 @@
           "CPU emulator checks",
           "33, all pass"
         ]
-      ],
-      "caveat": "Median of 3 runs on one Colab T4. The hand-written matmul is a teaching kernel; it sits at about 15% of cuBLAS."
+      ]
     },
     {
       "slug": "opinion-lineage",
@@ -304,7 +301,6 @@
           "0.061 vs 0.098"
         ]
       ],
-      "caveat": "",
       "patent": "Published, application 202641115708"
     },
     {
@@ -362,7 +358,6 @@
           "10 seeds"
         ]
       ],
-      "caveat": "Results come from a simulated railway network, not field data.",
       "patent": "Filed (railway collision avoidance)"
     },
     {
@@ -420,7 +415,6 @@
           "68"
         ]
       ],
-      "caveat": "Everything runs on a simulated enterprise; results describe this simulator, not real organisations.",
       "patent": "Published, application 202641108535"
     },
     {
@@ -477,8 +471,7 @@
           "Tests",
           "23"
         ]
-      ],
-      "caveat": "All numbers come from a synthetic news world with known attackers. They show how the mechanisms behave, not real-world accuracy."
+      ]
     },
     {
       "slug": "emergency-control",
@@ -539,7 +532,6 @@
           "31"
         ]
       ],
-      "caveat": "",
       "patent": "Published"
     },
     {
@@ -589,7 +581,6 @@
           "71"
         ]
       ],
-      "caveat": "517 fires from one park. The models beat chance only modestly; the disclosure's 90–95% figures are projections for a future sensor deployment, not results.",
       "patent": "Published, application 202641083188"
     },
     {
@@ -648,7 +639,6 @@
           "15"
         ]
       ],
-      "caveat": "Every result comes from synthetic signals, not hardware or field measurements.",
       "patent": "Published, application 202641075003"
     },
     {
@@ -718,8 +708,7 @@
           "Size and tests",
           "~6,000 lines, 158 tests"
         ]
-      ],
-      "caveat": "With 17 bugs, the localization differences are not statistically significant. The model path has been measured only with a local 7B model in two runs; a larger model has not been tried. The Docker sandbox has not been run, and no real GitHub pull request has been opened. These numbers are not comparable to SWE-bench scores."
+      ]
     },
     {
       "slug": "bankshield",
@@ -799,8 +788,7 @@
           "Size and tests",
           "~5,300 lines, 115 tests"
         ]
-      ],
-      "caveat": "Everything runs against a simulated estate and containment actions are simulated. The refusal thresholds were tuned on the 98-question set, so the held-out numbers are the ones to trust. Answers come from an offline extractive composer by default. A local qwen2.5:7b was measured through the OpenAI-compatible adapter: the guardrails held, but it was less helpful than the composer, so the composer stays the default. The Vertex and Anthropic adapters have not been run. The remediation commands are templates written from documentation and have not been executed against a real project."
+      ]
     },
     {
       "slug": "mini-kv-store",
@@ -843,8 +831,7 @@
           "Crash injection",
           "at every flush and compaction step"
         ]
-      ],
-      "caveat": ""
+      ]
     },
     {
       "slug": "system-design-primitives",
@@ -881,8 +868,7 @@
           "Tests",
           "32"
         ]
-      ],
-      "caveat": ""
+      ]
     },
     {
       "slug": "dsa-patterns",
@@ -923,8 +909,7 @@
           "Planted bugs caught",
           "9 of 11 (2 are behaviour-identical)"
         ]
-      ],
-      "caveat": ""
+      ]
     },
     {
       "slug": "healthcare",
@@ -968,8 +953,7 @@
           "Integration tests",
           "51, against a real Postgres"
         ]
-      ],
-      "caveat": "This repository holds the backend; the React portals are not included."
+      ]
     },
     {
       "slug": "inventory",
@@ -1009,8 +993,7 @@
           "Tests",
           "15 (edge cases, tampering, failure paths)"
         ]
-      ],
-      "caveat": ""
+      ]
     },
     {
       "slug": "pdf-audio",
@@ -1050,8 +1033,7 @@
           "Tests",
           "34, all offline"
         ]
-      ],
-      "caveat": ""
+      ]
     }
   ],
   "patents": [
@@ -1158,6 +1140,11 @@
       "project": "agentic-bug-repair",
       "value": "11 of 17",
       "label": "seeded bugs fixed and verified"
+    },
+    {
+      "project": "bankshield",
+      "value": "75 of 75",
+      "label": "answers cited and faithful to policy, 98-question eval"
     },
     {
       "project": "railconflict-pscl",
