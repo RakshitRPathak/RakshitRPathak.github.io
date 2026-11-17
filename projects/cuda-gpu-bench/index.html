@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>cuda-gpu-bench · Rakshit Ratan Pathak</title>
-<meta name="description" content="cuda-gpu-bench: Hand-written CUDA kernels for vector add, matrix multiply and sum reduction, benchmarked on a T4 and explained instruction by instruction.">
+<meta name="description" content="cuda-gpu-bench: Hand-written CUDA kernels for vector add, matrix multiply and sum reduction, benchmarked on a Tesla T4 and a Blackwell RTX 5050 Laptop GPU and explained instruction by instruction.">
 <link rel="canonical" href="https://rakshitrpathak.github.io/projects/cuda-gpu-bench/">
 <meta property="og:title" content="cuda-gpu-bench · Rakshit Ratan Pathak">
-<meta property="og:description" content="cuda-gpu-bench: Hand-written CUDA kernels for vector add, matrix multiply and sum reduction, benchmarked on a T4 and explained instruction by instruction.">
+<meta property="og:description" content="cuda-gpu-bench: Hand-written CUDA kernels for vector add, matrix multiply and sum reduction, benchmarked on a Tesla T4 and a Blackwell RTX 5050 Laptop GPU and explained instruction by instruction.">
 <meta property="og:url" content="https://rakshitrpathak.github.io/projects/cuda-gpu-bench/">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
@@ -38,7 +38,7 @@
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/projects/">Projects</a><span aria-hidden="true">/</span><a href="/projects/#systems">Systems and compilers</a></nav>
   <header class="dhead">
     <h1>cuda-gpu-bench</h1>
-    <p class="lede">Hand-written CUDA kernels for vector add, matrix multiply and sum reduction, benchmarked on a T4 and explained instruction by instruction.</p>
+    <p class="lede">Hand-written CUDA kernels for vector add, matrix multiply and sum reduction, benchmarked on a Tesla T4 and a Blackwell RTX 5050 Laptop GPU and explained instruction by instruction.</p>
     <div class="pills"><span class="pill ok">Complete</span></div>
   </header>
 </div>
@@ -53,8 +53,8 @@
   </div>
   <aside class="sheet" aria-labelledby="results-title">
     <h2 id="results-title">Results</h2>
-    <div class="source"><span>Numbers come from</span><b>Measured on a Tesla T4</b></div>
-    <dl class="kv"><div><dt>vec_add bandwidth</dt><dd>257 GB/s (80% of peak)</dd></div><div><dt>Matmul at N = 2048, tiled vs naive</dt><dd>683 vs 447 GFLOP/s</dd></div><div><dt>Tiled matmul vs cuBLAS</dt><dd>14.6%</dd></div><div><dt>Reduction, per-thread atomics vs shuffle</dt><dd>170 vs 234 GB/s</dd></div><div><dt>CPU emulator checks</dt><dd>33, all pass</dd></div></dl>
+    <div class="source"><span>Numbers come from</span><b>Measured on a Tesla T4 and an RTX 5050 Laptop GPU</b></div>
+    <dl class="kv"><div><dt>Tesla T4: vec_add bandwidth</dt><dd>257 GB/s (80% of peak)</dd></div><div><dt>Tesla T4: matmul at N = 2048, tiled vs naive</dt><dd>683 vs 447 GFLOP/s</dd></div><div><dt>Tesla T4: tiled matmul vs cuBLAS</dt><dd>14.6%</dd></div><div><dt>Tesla T4: reduction, atomics vs shuffle</dt><dd>170 vs 234 GB/s</dd></div><div><dt>RTX 5050 Laptop: tiled vs naive at N = 2048</dt><dd>912 vs 716 GFLOP/s (1.27×, vs 1.53× on the T4)</dd></div><div><dt>RTX 5050 Laptop: vec_add bandwidth</dt><dd>272 GB/s (71% of peak)</dd></div><div><dt>RTX 5050 Laptop: reduction, atomics vs shuffle</dt><dd>178 vs 203 GB/s</dd></div><div><dt>CPU emulator checks</dt><dd>33, all pass</dd></div></dl>
     <p class="caveat"><b>Before you quote these:</b> Median of 3 runs on one Colab T4. The hand-written matmul is a teaching kernel; it sits at about 15% of cuBLAS.</p>
     <div class="actions"><a class="btn primary" href="https://github.com/RakshitRPathak/cuda-gpu-bench" target="_blank" rel="noopener">Code</a></div>
   </aside>
@@ -62,8 +62,8 @@
 <section class="stack"><div class="shead"><h2>More in systems and compilers</h2><a href="/projects/#systems">See all</a></div>
   <div class="grid3"><a class="pcard" href="/projects/ptxforge/" data-track="systems">
       <h3>PTXForge</h3>
-      <p>An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner that reaches 85.6% of cuBLAS on a T4 with the nvcc-built kernel.</p>
-      <div class="meta"><span class="pill prog">In progress</span><span class="pill">Measured on a Tesla T4; MLIR path checked on CPU</span></div>
+      <p>An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner measured on two GPU architectures: 85.6% of cuBLAS on a Tesla T4 and 79.3% on a Blackwell RTX 5050 Laptop GPU with the nvcc-built kernel.</p>
+      <div class="meta"><span class="pill prog">In progress</span><span class="pill">Measured on a Tesla T4 and an RTX 5050 Laptop GPU</span></div>
     </a><a class="pcard" href="/projects/minic/" data-track="systems">
       <h3>minic</h3>
       <p>A dependency-free compiler for a small imperative language with functions and recursion: a bytecode back end, plus an SSA intermediate representation with six optimization passes, checked by a differential fuzzer.</p>

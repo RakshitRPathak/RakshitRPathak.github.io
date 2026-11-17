@@ -34,7 +34,7 @@
       "title": "PTXForge",
       "sub": "GPU kernel compiler and autotuner in C++20",
       "status": "prog",
-      "data": "Measured on a Tesla T4; MLIR path checked on CPU",
+      "data": "Measured on a Tesla T4 and an RTX 5050 Laptop GPU",
       "stack": [
         "C++20",
         "MLIR / LLVM 19",
@@ -47,7 +47,7 @@
           "https://github.com/RakshitRPathak/ptxforge"
         ]
       ],
-      "lede": "An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner that reaches 85.6% of cuBLAS on a T4 with the nvcc-built kernel.",
+      "lede": "An MLIR compiler that lowers a fused GEMM + bias + GELU from linalg to PTX, plus a closed-loop autotuner measured on two GPU architectures: 85.6% of cuBLAS on a Tesla T4 and 79.3% on a Blackwell RTX 5050 Laptop GPU with the nvcc-built kernel.",
       "problem": "Choosing tile sizes and shared-memory layout for a GPU kernel by hand is slow, and a wrong guess can cost several times in throughput. PTXForge searches the configuration space with a cost model, measures every candidate on the GPU, and keeps a trace of each decision.",
       "pipe": [
         "linalg",
@@ -60,27 +60,40 @@
       ],
       "how": [
         "The MLIR passes build against LLVM 19 and lower linalg to PTX in six stages, about 0.2 s, with no CUDA toolkit. The kernel takes four pointers and keeps each thread's 4×4 accumulator in registers.",
-        "Four custom passes: epilogue fusion, bank-conflict padding for shared memory, an arith-only tanh/fabs so the kernel needs no libdevice, and removal of the no-op copies bufferization leaves behind.",
+        "Five custom passes: epilogue fusion, bank-conflict padding for shared memory, an arith-only tanh/fabs so the kernel needs no libdevice, removal of the no-op copies bufferization leaves behind, and one that keeps the outlined kernel's parameters in source order (outlining had silently reordered them, which the first GPU run caught as NaN output).",
         "Tile sizes come from a transform schedule the tuner renders per config, so trying a new config needs no C++ rebuild.",
         "Header-only C++20 tuner: a 3,610-config search space, a roofline cost model (arithmetic intensity, register caps, occupancy, wave quantization) and closed-loop search. Advisors (none, random, rules, knowledge graph, LLM) are validated in C++ before anything runs.",
-        "The first T4 run showed the cost model ranks near-optimal configs badly (Spearman ρ = −0.67). The tuner still reached 85.6% of cuBLAS because it keeps the measured best, which is the argument for closed-loop measurement."
+        "The cost model ranks near-optimal configs badly on both GPUs (Spearman ρ = −0.67 on the T4, −0.37 on the RTX 5050). On Blackwell it gave one prediction to eight configs that measured 3,446 to 7,245 GFLOP/s, missing that an 8×4 per-thread tile beats 4×8 at every K depth. The tuner still finds good configs because it keeps the measured best, which is the argument for closed-loop measurement.",
+        "When the laptop's driver turned out older than its CUDA toolkit and refused the toolkit's PTX, the runner learned to fall back to cubins; a fake CUDA driver in CI tests that path without a GPU."
       ],
       "results": [
         [
-          "Tuned nvcc kernel, 2048³ FP32",
+          "Tesla T4: tuned nvcc kernel, 2048³ FP32",
           "3,688.5 GFLOP/s"
         ],
         [
-          "Share of cuBLAS, same run",
+          "Tesla T4: share of cuBLAS, same run",
           "85.6%"
         ],
         [
-          "Gain from tuning",
+          "Tesla T4: gain from tuning",
           "1.78×"
         ],
         [
-          "Cost model vs measured rank",
+          "Tesla T4: cost model vs measured rank",
           "ρ = −0.67"
+        ],
+        [
+          "RTX 5050 Laptop (Blackwell): tuned kernel",
+          "7,546.6 GFLOP/s, 79.3% of cuBLAS, 1.50×"
+        ],
+        [
+          "RTX 5050 Laptop: cost model vs measured rank",
+          "ρ = −0.37"
+        ],
+        [
+          "MLIR-generated kernel on the RTX 5050",
+          "correct, 3,008 GFLOP/s (31.6% of cuBLAS)"
         ],
         [
           "MLIR lowering vs fp64 reference (CPU)",
@@ -88,14 +101,14 @@
         ],
         [
           "FileCheck cases",
-          "7, all pass"
+          "10, all pass"
         ],
         [
           "C++ unit tests",
           "16, clean under ASan + UBSan"
         ]
       ],
-      "caveat": "The 85.6% comes from one 40-trial tuning run of the nvcc-built kernel on a Colab T4. The MLIR-generated PTX is checked numerically on the CPU but hasn't been run on a GPU yet, and it doesn't stage tiles in shared memory, so expect it to be well below the tuned kernel. The advisor ablation hasn't been run on hardware."
+      "caveat": "Each GPU has one 40-trial tuning run of the nvcc-built kernel. Only same-run ratios compare across sessions: cuBLAS itself measured 9.5 TFLOP/s in the RTX 5050 run against 6.7–6.9 in earlier runs on the same laptop. The MLIR-generated kernel is correct but slow, because its schedule doesn't stage tiles in shared memory yet. The advisor ablation hasn't been run on hardware."
     },
     {
       "slug": "minic",
@@ -170,7 +183,7 @@
       "title": "cuda-gpu-bench",
       "sub": "CUDA kernels, benchmarked and read down to the PTX",
       "status": "done",
-      "data": "Measured on a Tesla T4",
+      "data": "Measured on a Tesla T4 and an RTX 5050 Laptop GPU",
       "stack": [
         "CUDA",
         "C++",
@@ -183,7 +196,7 @@
           "https://github.com/RakshitRPathak/cuda-gpu-bench"
         ]
       ],
-      "lede": "Hand-written CUDA kernels for vector add, matrix multiply and sum reduction, benchmarked on a T4 and explained instruction by instruction.",
+      "lede": "Hand-written CUDA kernels for vector add, matrix multiply and sum reduction, benchmarked on a Tesla T4 and a Blackwell RTX 5050 Laptop GPU and explained instruction by instruction.",
       "problem": "Each kernel answers one question a GPU performance engineer asks: how much does shared-memory tiling help, and what does synchronization cost (atomics vs shared-memory tree vs warp shuffles)?",
       "pipe": [
         "kernel source",
@@ -201,20 +214,32 @@
       ],
       "results": [
         [
-          "vec_add bandwidth",
+          "Tesla T4: vec_add bandwidth",
           "257 GB/s (80% of peak)"
         ],
         [
-          "Matmul at N = 2048, tiled vs naive",
+          "Tesla T4: matmul at N = 2048, tiled vs naive",
           "683 vs 447 GFLOP/s"
         ],
         [
-          "Tiled matmul vs cuBLAS",
+          "Tesla T4: tiled matmul vs cuBLAS",
           "14.6%"
         ],
         [
-          "Reduction, per-thread atomics vs shuffle",
+          "Tesla T4: reduction, atomics vs shuffle",
           "170 vs 234 GB/s"
+        ],
+        [
+          "RTX 5050 Laptop: tiled vs naive at N = 2048",
+          "912 vs 716 GFLOP/s (1.27×, vs 1.53× on the T4)"
+        ],
+        [
+          "RTX 5050 Laptop: vec_add bandwidth",
+          "272 GB/s (71% of peak)"
+        ],
+        [
+          "RTX 5050 Laptop: reduction, atomics vs shuffle",
+          "178 vs 203 GB/s"
         ],
         [
           "CPU emulator checks",
