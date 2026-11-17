@@ -10,14 +10,14 @@
 <meta property="og:description" content="Healthcare Appointment Manager: A REST backend for patients, doctors and admins where two people can never book the same slot and no notification is silently lost.">
 <meta property="og:url" content="https://rakshitrpathak.github.io/projects/healthcare/">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f1f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15132b" media="(prefers-color-scheme: dark)">
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315171c'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315132b'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -42,11 +42,16 @@
     <div class="pills"><span class="pill ok">Complete</span></div>
   </header>
 </div>
+<section class="flowsec" aria-labelledby="flow-title">
+  <h2 id="flow-title">Pipeline</h2>
+  <div class="flow" data-flow style="--cols:4"><svg class="wire" aria-hidden="true"></svg>
+    <ol><li><span class="n">1</span><span class="t">REST API</span></li><li><span class="n">2</span><span class="t">role-based access</span></li><li><span class="n">3</span><span class="t">slot hold (5 min)</span></li><li><span class="n">4</span><span class="t">exclusion constraint</span></li><li><span class="n">5</span><span class="t">transactional outbox</span></li><li><span class="n">6</span><span class="t">worker + retries</span></li><li><span class="n">7</span><span class="t">dead-letter queue</span></li></ol>
+  </div>
+</section>
 <div class="dgrid">
   <div class="story">
     <section><h2>The problem</h2><p>Booking systems fail at the edges: two requests for one slot, a doctor&#x27;s leave added after bookings exist, an email provider that times out.</p></section>
     <section><h2>How it works</h2>
-      <ol class="steps" aria-label="Pipeline"><li><span>REST API</span></li><li><span>role-based access</span></li><li><span>slot hold (5 min)</span></li><li><span>exclusion constraint</span></li><li><span>transactional outbox</span></li><li><span>worker + retries</span></li><li><span>dead-letter queue</span></li></ol>
       <ul><li>PostgreSQL exclusion constraints and 5-minute slot holds prevent double-booking; a concurrent booking gets a clear conflict error.</li><li>Leave creation and booking take the same row lock, so they can&#x27;t race.</li><li>A transactional outbox with retries and a dead-letter queue makes notifications reliable.</li><li>LLM visit summaries are schema-validated, can&#x27;t invent a drug the doctor didn&#x27;t prescribe, and fall back to a deterministic template when the model fails.</li></ul>
     </section>
     <section><h2>Built with</h2><div class="pills"><span class="pill">TypeScript</span><span class="pill">Node.js</span><span class="pill">PostgreSQL</span><span class="pill">Redis</span><span class="pill">BullMQ</span></div></section>
@@ -82,5 +87,6 @@
   </div>
 </footer>
 <script src="/assets/site.js" defer></script>
+
 </body>
 </html>

@@ -4,7 +4,7 @@
     python3 build.py
 
 Writes index.html, projects/, projects/<slug>/, research/, experience/, resumes/, contact/, 404.html and sitemap.xml.
-Standard library only. Styles live in assets/site.css and behaviour in assets/site.js; edit those directly.
+Standard library only. Styles live in assets/site.css, behaviour in assets/site.js and the 3D hero in assets/gemm.js; edit those directly.
 """
 import json
 import shutil
@@ -34,7 +34,7 @@ ICON = {
     "pdf": '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>',
 }
 MARK = '<span class="mark" aria-hidden="true"><svg viewBox="0 0 14 14"><rect x="1" y="8" width="3" height="5" rx="1"/><rect x="5.5" y="5" width="3" height="8" rx="1"/><rect x="10" y="1" width="3" height="12" rx="1"/></svg></span>'
-FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315171c'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E"
+FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315132b'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E"
 
 
 def ext(href, text, cls="btn", icon=False):
@@ -45,7 +45,7 @@ def status_pill(p):
     return '<span class="pill prog">In progress</span>' if p["status"] == "prog" else '<span class="pill ok">Complete</span>'
 
 
-def page(path, title, desc, body, active=None, extra_head=""):
+def page(path, title, desc, body, active=None, extra_head="", extra_body=""):
     full_title = title if title == P["name"] else f"{title} · {P['name']}"
     nav = "".join(f'<a href="{h}"{" aria-current=page" if h == active else ""}>{e(t)}</a>' for h, t in NAV)
     return f"""<!doctype html>
@@ -60,12 +60,12 @@ def page(path, title, desc, body, active=None, extra_head=""):
 <meta property="og:description" content="{e(desc)}">
 <meta property="og:url" content="{SITE}{path}">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f1f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15132b" media="(prefers-color-scheme: dark)">
 <script>try{{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
 <link rel="icon" href="{FAVICON}">
 {extra_head}</head>
@@ -93,6 +93,7 @@ def page(path, title, desc, body, active=None, extra_head=""):
   </div>
 </footer>
 <script src="/assets/site.js" defer></script>
+{extra_body}
 </body>
 </html>
 """
@@ -111,53 +112,53 @@ def chart():
         rows.append(f'<li class="rung {e(r["cls"])}" style="--i:{i}"><span class="who">{who}<span>{e(r["note"])}</span></span>'
                     f'<span class="val">{val}</span><span class="track" aria-hidden="true"><span class="fill" style="--w:{pct:.2f}%"></span></span></li>')
     gh = P["github"]
-    return f"""<figure class="tile wide chart" style="margin:0" aria-labelledby="chart-title">
+    return f"""<figure class="chart" aria-labelledby="chart-title">
       <div><h2 id="chart-title">My matrix-multiply kernels on a Tesla T4</h2><p class="sub">Throughput as a share of cuBLAS, N = 2048, FP32</p></div>
       <ol class="rungs">{"".join(rows)}</ol>
       <figcaption class="note">Each bar is relative to cuBLAS timed in the same run. Raw numbers are in the <a href="{gh}/cuda-gpu-bench#results">cuda-gpu-bench</a> and <a href="{gh}/ptxforge#results">PTXForge</a> READMEs.</figcaption>
     </figure>"""
 
 
-def feature_tile(f):
+def work_row(f):
     p = BY_SLUG[f["project"]]
-    dot = '<span class="dot prog" title="In progress"></span>' if p["status"] == "prog" else '<span class="dot" title="Complete"></span>'
-    return f"""<a class="tile" href="/projects/{p["slug"]}/">
-      <div class="row-top"><div><h3>{e(p["title"])}</h3><p class="kicker">{e(p["sub"])}</p></div>{dot}</div>
-      <div class="tile-foot"><div class="big">{e(f["value"])}</div><p>{e(f["label"])}</p></div>
-    </a>"""
+    state = '<span class="state prog">In progress</span>' if p["status"] == "prog" else ""
+    return f"""<li><a href="/projects/{p["slug"]}/">
+      <span class="t">{e(p["title"])}{state}</span><span class="s">{e(p["sub"])}</span>
+      <span class="v">{e(f["value"])}</span><span class="l">{e(f["label"])}</span></a></li>"""
 
 
 def home():
-    feats = [feature_tile(f) for f in D["featured"]]
     published = sum(1 for x in D["patents"] if x["status"] == "Published")
     intern = D["experience"][0]
     body = f"""<section class="hero">
-  <span class="pill ok">{e(P["availability"])}</span>
-  <h1>{e(P["name"])}</h1>
-  <p class="lead">I build <b>compilers, GPU kernels, ML systems and backends</b>, and I show how I measured them.</p>
-  <p class="facts">{e(P["facts"])}</p>
-  <div class="actions"><a class="btn primary" href="/projects/">View projects</a>{ext(P["linkedin"], "LinkedIn", icon=True)}<a class="btn" href="/resumes/">Résumés</a></div>
+  <div class="hero-copy">
+    <span class="pill ok">{e(P["availability"])}</span>
+    <h1>{e(P["name"])}</h1>
+    <p class="lead">{e(P["headline"])}</p>
+    <p class="facts">{e(P["facts"])}</p>
+    <div class="actions"><a class="btn primary" href="/projects/">View projects</a><a class="btn" href="mailto:{e(P["email"])}">Email me</a><a class="btn" href="/resumes/">Résumés</a></div>
+  </div>
+  <figure class="gemm">
+    <canvas id="gemm" aria-hidden="true"></canvas>
+    <figcaption>A tiled matrix multiply, drawn as its 3D iteration space. One thread block computes a tile of C at a time: teal is the slice of A and B it reads at each step along K, amber the multiply-adds it has done.</figcaption>
+  </figure>
 </section>
 <section class="stack">
   <div class="shead"><h2>Selected work</h2><a href="/projects/">All {len(PROJECTS)} projects</a></div>
-  <div class="bento">
-    {chart()}
-    {feats[0]}
-    {feats[1]}
-    {feats[2]}
-    {feats[3]}
-    {feats[4]}
-    {feats[5]}
-    <a class="tile" href="/research/"><p class="kicker">Research</p><div class="tile-foot"><div class="big">{len(D["patents"])} patents</div><p>filed through the VIT IPR Cell, {published} published, and {len(D["papers"])} manuscripts submitted to IEEE Access</p></div></a>
-    <a class="tile" href="/experience/"><p class="kicker">Experience</p><div class="tile-foot"><h3>{e(intern["title"])}</h3><p>{e(intern["org"].split(",")[0])}, {e(intern["when"])}. RAG features for a healthcare product, plus security policies for three clients.</p></div></a>
-    <div class="tile cta"><div><h2>Hiring interns for January 2027?</h2><p style="margin-top:8px">I'm looking for a six-month internship in software engineering, ML engineering or compilers.</p></div>
-      <div class="actions"><a class="btn primary" href="mailto:{e(P["email"])}">Email me</a>{ext(P["linkedin"], "LinkedIn", "btn on-panel", icon=True)}</div></div>
-  </div>
+  <ul class="index">{"".join(work_row(f) for f in D["featured"])}</ul>
+</section>
+{chart()}
+<section class="trio">
+  <a class="panel" href="/research/"><h2>Research</h2><p><b>{len(D["patents"])} patent applications</b>, {published} published, filed through the VIT IPR Cell, and {len(D["papers"])} manuscripts submitted to IEEE Access.</p></a>
+  <a class="panel" href="/experience/"><h2>Experience</h2><p><b>{e(intern["title"])}</b>, {e(intern["org"].split(",")[0])}, {e(intern["when"])}. RAG features for a healthcare product, plus security policies for three clients.</p></a>
+  <div class="panel cta"><h2>Hiring interns for January 2027?</h2><p>I'm looking for a six-month internship in software engineering, ML engineering or compilers.</p>
+    <div class="actions"><a class="btn primary" href="mailto:{e(P["email"])}">Email me</a>{ext(P["linkedin"], "LinkedIn", icon=True)}</div></div>
 </section>"""
     redirect = """<script>(function(){var h=decodeURIComponent(location.hash.slice(1));if(!h||h==="top")return;var m={work:"/projects/",research:"/research/",experience:"/experience/",resumes:"/resumes/",contact:"/contact/"};
 var t=h.indexOf("p-")===0?"/projects/"+h.slice(2)+"/":m[h];if(t)location.replace(t);})();</script>
 """
-    return page("/", P["name"], f"{P['name']}: compilers and GPU kernels in C++, ML systems with measured results, tested backends. {P['availability_long']}", body, extra_head=redirect)
+    return page("/", P["name"], f"{P['name']}: compilers and GPU kernels in C++, ML systems with measured results, tested backends. {P['availability_long']}", body,
+                extra_head=redirect, extra_body='<script src="/assets/gemm.js" defer></script>')
 
 
 def project_card(p, kicker=True):
@@ -197,11 +198,16 @@ def project_page(p):
     <div class="pills">{status_pill(p)}{patent}</div>
   </header>
 </div>
+<section class="flowsec" aria-labelledby="flow-title">
+  <h2 id="flow-title">Pipeline</h2>
+  <div class="flow" data-flow style="--cols:{len(p["pipe"]) if len(p["pipe"]) <= 5 else -(-len(p["pipe"]) // 2)}"><svg class="wire" aria-hidden="true"></svg>
+    <ol>{"".join(f'<li><span class="n">{k}</span><span class="t">{e(s)}</span></li>' for k, s in enumerate(p["pipe"], 1))}</ol>
+  </div>
+</section>
 <div class="dgrid">
   <div class="story">
     <section><h2>The problem</h2><p>{e(p["problem"])}</p></section>
     <section><h2>How it works</h2>
-      <ol class="steps" aria-label="Pipeline">{"".join(f"<li><span>{e(s)}</span></li>" for s in p["pipe"])}</ol>
       <ul>{"".join(f"<li>{e(h)}</li>" for h in p["how"])}</ul>
     </section>
     <section><h2>Built with</h2><div class="pills">{"".join(f'<span class="pill">{e(s)}</span>' for s in p["stack"])}</div></section>

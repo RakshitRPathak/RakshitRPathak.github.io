@@ -10,14 +10,14 @@
 <meta property="og:description" content="Rakshit Ratan Pathak: compilers and GPU kernels in C++, ML systems with measured results, tested backends. Open to six-month internships from January 2027 in software engineering, ML engineering and compilers.">
 <meta property="og:url" content="https://rakshitrpathak.github.io/">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f1f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15132b" media="(prefers-color-scheme: dark)">
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315171c'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315132b'/%3E%3Crect x='7' y='18' width='4' height='7' rx='1' fill='%23fff'/%3E%3Crect x='14' y='12' width='4' height='13' rx='1' fill='%23fff'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1' fill='%23fff'/%3E%3C/svg%3E">
 <script>(function(){var h=decodeURIComponent(location.hash.slice(1));if(!h||h==="top")return;var m={work:"/projects/",research:"/research/",experience:"/experience/",resumes:"/resumes/",contact:"/contact/"};
 var t=h.indexOf("p-")===0?"/projects/"+h.slice(2)+"/":m[h];if(t)location.replace(t);})();</script>
 </head>
@@ -37,49 +37,44 @@ var t=h.indexOf("p-")===0?"/projects/"+h.slice(2)+"/":m[h];if(t)location.replace
 </header>
 <main id="main" tabindex="-1">
 <section class="hero">
-  <span class="pill ok">Open to internships from January 2027</span>
-  <h1>Rakshit Ratan Pathak</h1>
-  <p class="lead">I build <b>compilers, GPU kernels, ML systems and backends</b>, and I show how I measured them.</p>
-  <p class="facts">Final-year B.Tech in Computer Science and Business Systems at VIT Vellore, CGPA 8.3. Six patent applications, five published. Three manuscripts submitted to IEEE Access.</p>
-  <div class="actions"><a class="btn primary" href="/projects/">View projects</a><a class="btn" href="https://www.linkedin.com/in/rakshit-ratan-pathak-20a32228a" target="_blank" rel="noopener">LinkedIn<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a><a class="btn" href="/resumes/">Résumés</a></div>
+  <div class="hero-copy">
+    <span class="pill ok">Open to internships from January 2027</span>
+    <h1>Rakshit Ratan Pathak</h1>
+    <p class="lead">I build compilers, GPU kernels, ML systems and backends, and I show how I measured them.</p>
+    <p class="facts">Final-year B.Tech in Computer Science and Business Systems at VIT Vellore, CGPA 8.3. Six patent applications, five published. Three manuscripts submitted to IEEE Access.</p>
+    <div class="actions"><a class="btn primary" href="/projects/">View projects</a><a class="btn" href="mailto:rrpathak.0007@gmail.com">Email me</a><a class="btn" href="/resumes/">Résumés</a></div>
+  </div>
+  <figure class="gemm">
+    <canvas id="gemm" aria-hidden="true"></canvas>
+    <figcaption>A tiled matrix multiply, drawn as its 3D iteration space. One thread block computes a tile of C at a time: teal is the slice of A and B it reads at each step along K, amber the multiply-adds it has done.</figcaption>
+  </figure>
 </section>
 <section class="stack">
   <div class="shead"><h2>Selected work</h2><a href="/projects/">All 18 projects</a></div>
-  <div class="bento">
-    <figure class="tile wide chart" style="margin:0" aria-labelledby="chart-title">
+  <ul class="index"><li><a href="/projects/ptxforge/">
+      <span class="t">PTXForge<span class="state prog">In progress</span></span><span class="s">GPU kernel compiler and autotuner in C++20</span>
+      <span class="v">85.6%</span><span class="l">of cuBLAS on a Tesla T4, after tuning</span></a></li><li><a href="/projects/agentic-bug-repair/">
+      <span class="t">agentic-bug-repair</span><span class="s">Autonomous bug-fixing agent in Java</span>
+      <span class="v">11 of 17</span><span class="l">seeded bugs fixed and verified</span></a></li><li><a href="/projects/railconflict-pscl/">
+      <span class="t">RailConflict-PSCL</span><span class="s">Railway collision-risk assessment</span>
+      <span class="v">0.7%</span><span class="l">missed-Critical rate, down from 9.9%</span></a></li><li><a href="/projects/mini-kv-store/">
+      <span class="t">mini-kv-store</span><span class="s">Crash-safe LSM-tree key-value store</span>
+      <span class="v">39 tests</span><span class="l">with a crash at every flush and compaction</span></a></li><li><a href="/projects/healthcare/">
+      <span class="t">Healthcare Appointment Manager</span><span class="s">Concurrency-safe booking backend</span>
+      <span class="v">51 tests</span><span class="l">against real Postgres, booking races included</span></a></li><li><a href="/projects/vericloud/">
+      <span class="t">VeriCloud</span><span class="s">News claim verification</span>
+      <span class="v">0.79 F1</span><span class="l">under a sybil attack, vs 0.70 for the best baseline</span></a></li></ul>
+</section>
+<figure class="chart" aria-labelledby="chart-title">
       <div><h2 id="chart-title">My matrix-multiply kernels on a Tesla T4</h2><p class="sub">Throughput as a share of cuBLAS, N = 2048, FP32</p></div>
       <ol class="rungs"><li class="rung base" style="--i:0"><span class="who"><a href="/projects/cuda-gpu-bench/">Naive kernel</a><span>cuda-gpu-bench</span></span><span class="val"><small>446.9 GFLOP/s</small>9.6%</span><span class="track" aria-hidden="true"><span class="fill" style="--w:9.59%"></span></span></li><li class="rung base" style="--i:1"><span class="who"><a href="/projects/cuda-gpu-bench/">Shared-memory tiled</a><span>cuda-gpu-bench</span></span><span class="val"><small>682.8 GFLOP/s</small>14.6%</span><span class="track" aria-hidden="true"><span class="fill" style="--w:14.65%"></span></span></li><li class="rung base" style="--i:2"><span class="who"><a href="/projects/ptxforge/">Fused kernel, untuned</a><span>PTXForge</span></span><span class="val"><small>2,074.0 GFLOP/s</small>48.1%</span><span class="track" aria-hidden="true"><span class="fill" style="--w:48.15%"></span></span></li><li class="rung " style="--i:3"><span class="who"><a href="/projects/ptxforge/">Fused kernel, tuned</a><span>PTXForge, 40 trials</span></span><span class="val"><small>3,688.5 GFLOP/s</small>85.6%</span><span class="track" aria-hidden="true"><span class="fill" style="--w:85.63%"></span></span></li><li class="rung ref" style="--i:4"><span class="who">cuBLAS SGEMM<span>reference</span></span><span class="val">100%</span><span class="track" aria-hidden="true"><span class="fill" style="--w:100.00%"></span></span></li></ol>
       <figcaption class="note">Each bar is relative to cuBLAS timed in the same run. Raw numbers are in the <a href="https://github.com/RakshitRPathak/cuda-gpu-bench#results">cuda-gpu-bench</a> and <a href="https://github.com/RakshitRPathak/ptxforge#results">PTXForge</a> READMEs.</figcaption>
     </figure>
-    <a class="tile" href="/projects/ptxforge/">
-      <div class="row-top"><div><h3>PTXForge</h3><p class="kicker">GPU kernel compiler and autotuner in C++20</p></div><span class="dot prog" title="In progress"></span></div>
-      <div class="tile-foot"><div class="big">85.6%</div><p>of cuBLAS on a Tesla T4, after tuning</p></div>
-    </a>
-    <a class="tile" href="/projects/agentic-bug-repair/">
-      <div class="row-top"><div><h3>agentic-bug-repair</h3><p class="kicker">Autonomous bug-fixing agent in Java</p></div><span class="dot" title="Complete"></span></div>
-      <div class="tile-foot"><div class="big">11 of 17</div><p>seeded bugs fixed and verified</p></div>
-    </a>
-    <a class="tile" href="/projects/railconflict-pscl/">
-      <div class="row-top"><div><h3>RailConflict-PSCL</h3><p class="kicker">Railway collision-risk assessment</p></div><span class="dot" title="Complete"></span></div>
-      <div class="tile-foot"><div class="big">0.7%</div><p>missed-Critical rate, down from 9.9%</p></div>
-    </a>
-    <a class="tile" href="/projects/mini-kv-store/">
-      <div class="row-top"><div><h3>mini-kv-store</h3><p class="kicker">Crash-safe LSM-tree key-value store</p></div><span class="dot" title="Complete"></span></div>
-      <div class="tile-foot"><div class="big">39 tests</div><p>with a crash at every flush and compaction</p></div>
-    </a>
-    <a class="tile" href="/projects/healthcare/">
-      <div class="row-top"><div><h3>Healthcare Appointment Manager</h3><p class="kicker">Concurrency-safe booking backend</p></div><span class="dot" title="Complete"></span></div>
-      <div class="tile-foot"><div class="big">51 tests</div><p>against real Postgres, booking races included</p></div>
-    </a>
-    <a class="tile" href="/projects/vericloud/">
-      <div class="row-top"><div><h3>VeriCloud</h3><p class="kicker">News claim verification</p></div><span class="dot" title="Complete"></span></div>
-      <div class="tile-foot"><div class="big">0.79 F1</div><p>under a sybil attack, vs 0.70 for the best baseline</p></div>
-    </a>
-    <a class="tile" href="/research/"><p class="kicker">Research</p><div class="tile-foot"><div class="big">6 patents</div><p>filed through the VIT IPR Cell, 5 published, and 3 manuscripts submitted to IEEE Access</p></div></a>
-    <a class="tile" href="/experience/"><p class="kicker">Experience</p><div class="tile-foot"><h3>Software Engineering Intern</h3><p>aiDataWorks, May–Jul 2026. RAG features for a healthcare product, plus security policies for three clients.</p></div></a>
-    <div class="tile cta"><div><h2>Hiring interns for January 2027?</h2><p style="margin-top:8px">I'm looking for a six-month internship in software engineering, ML engineering or compilers.</p></div>
-      <div class="actions"><a class="btn primary" href="mailto:rrpathak.0007@gmail.com">Email me</a><a class="btn on-panel" href="https://www.linkedin.com/in/rakshit-ratan-pathak-20a32228a" target="_blank" rel="noopener">LinkedIn<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div></div>
-  </div>
+<section class="trio">
+  <a class="panel" href="/research/"><h2>Research</h2><p><b>6 patent applications</b>, 5 published, filed through the VIT IPR Cell, and 3 manuscripts submitted to IEEE Access.</p></a>
+  <a class="panel" href="/experience/"><h2>Experience</h2><p><b>Software Engineering Intern</b>, aiDataWorks, May–Jul 2026. RAG features for a healthcare product, plus security policies for three clients.</p></a>
+  <div class="panel cta"><h2>Hiring interns for January 2027?</h2><p>I'm looking for a six-month internship in software engineering, ML engineering or compilers.</p>
+    <div class="actions"><a class="btn primary" href="mailto:rrpathak.0007@gmail.com">Email me</a><a class="btn" href="https://www.linkedin.com/in/rakshit-ratan-pathak-20a32228a" target="_blank" rel="noopener">LinkedIn<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div></div>
 </section>
 </main>
 <footer class="foot">
@@ -89,5 +84,6 @@ var t=h.indexOf("p-")===0?"/projects/"+h.slice(2)+"/":m[h];if(t)location.replace
   </div>
 </footer>
 <script src="/assets/site.js" defer></script>
+<script src="/assets/gemm.js" defer></script>
 </body>
 </html>
