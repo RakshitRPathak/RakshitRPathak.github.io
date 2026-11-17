@@ -661,6 +661,7 @@
       "stack": [
         "Java 17",
         "JDK compiler API",
+        "Ollama / OpenAI-compatible LLMs",
         "no dependencies"
       ],
       "links": [
@@ -685,6 +686,7 @@
         "The JDK compiler API parses the repository into a code graph with call, import, inheritance and field-write edges.",
         "Fault localization combines test failures, the graph and text retrieval to rank suspect methods.",
         "Candidate diffs run in an isolated sandbox; failures are fed back for up to three correction rounds.",
+        "Patches come from a free mutation search first and then from any OpenAI-compatible model, local (Ollama) or hosted. A model run checks that the model answers before it starts, keeps the mutation search going when the model fails, and flags any result the model did not really take part in.",
         "A GitHub webhook can trigger runs, and a dashboard shows the state machine, the diff and telemetry. State-changing calls require same-origin JSON on a loopback host."
       ],
       "results": [
@@ -709,11 +711,15 @@
           "47% vs 59%"
         ],
         [
+          "With a local 7B model (qwen2.5-coder, RTX 5050)",
+          "11 of 17; one new-code bug fixed in 1 of 2 runs"
+        ],
+        [
           "Size and tests",
-          "~5,700 lines, 147 tests"
+          "~6,000 lines, 158 tests"
         ]
       ],
-      "caveat": "With 17 bugs, the localization differences are not statistically significant. The model-backed repair path has only been tested against a stub API, the Docker sandbox has not been run, and no real GitHub pull request has been opened. These numbers are not comparable to SWE-bench scores."
+      "caveat": "With 17 bugs, the localization differences are not statistically significant. The model path has been measured only with a local 7B model in two runs; a larger model has not been tried. The Docker sandbox has not been run, and no real GitHub pull request has been opened. These numbers are not comparable to SWE-bench scores."
     },
     {
       "slug": "bankshield",
@@ -727,7 +733,8 @@
         "FastAPI",
         "SQLite",
         "scikit-learn",
-        "BM25"
+        "BM25",
+        "Ollama"
       ],
       "links": [
         [
@@ -777,11 +784,23 @@
           "15 of 18"
         ],
         [
+          "Local qwen2.5:7b on an RTX 5050: shown answers cited and faithful",
+          "67 of 67"
+        ],
+        [
+          "Local qwen2.5:7b: legitimate answers withheld for missing citations",
+          "8 of 75"
+        ],
+        [
+          "Local qwen2.5:7b, held-out set: should-refuse questions refused",
+          "7 of 8"
+        ],
+        [
           "Size and tests",
-          "~5,300 lines, 111 tests"
+          "~5,300 lines, 115 tests"
         ]
       ],
-      "caveat": "Everything runs against a simulated estate and containment actions are simulated. The refusal thresholds were tuned on the 98-question set, so the held-out numbers are the ones to trust. Answers come from an offline extractive composer; the OpenAI, Vertex and Anthropic adapters have not been run. The remediation commands are templates written from documentation and have not been executed against a real project."
+      "caveat": "Everything runs against a simulated estate and containment actions are simulated. The refusal thresholds were tuned on the 98-question set, so the held-out numbers are the ones to trust. Answers come from an offline extractive composer by default. A local qwen2.5:7b was measured through the OpenAI-compatible adapter: the guardrails held, but it was less helpful than the composer, so the composer stays the default. The Vertex and Anthropic adapters have not been run. The remediation commands are templates written from documentation and have not been executed against a real project."
     },
     {
       "slug": "mini-kv-store",
